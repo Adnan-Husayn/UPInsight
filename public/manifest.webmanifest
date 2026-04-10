@@ -1,0 +1,17 @@
+{
+  "name": "Spending Analyzer",
+  "short_name": "Analyzer",
+  "description": "A privacy-first UPI statement analyzer with local categorization, budgeting, and offline support.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f2ea",
+  "theme_color": "#11192c",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
