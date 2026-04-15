@@ -1,0 +1,145 @@
+:root {
+  --display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --body: "Iowan Old Style", Georgia, serif;
+  --ui: "Inter", "Avenir Next", "Segoe UI", sans-serif;
+
+  --bg: #07111f;
+  --panel: rgba(12, 22, 38, 0.82);
+  --surface: #101c31;
+  --surface-muted: #16233c;
+  --surface-strong: #1b2b48;
+  --border: rgba(148, 167, 201, 0.16);
+  --border-strong: rgba(173, 190, 219, 0.28);
+  --ink: #edf4ff;
+  --muted: #97a9c6;
+  --muted-strong: #cbd8ef;
+  --primary: #7aa2ff;
+  --primary-hover: #99b9ff;
+  --primary-soft: rgba(122, 162, 255, 0.14);
+  --primary-contrast: #08111f;
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.14);
+  --danger: #ff8d85;
+  --danger-soft: rgba(255, 141, 133, 0.14);
+  --warning: #f4c96b;
+  --warning-soft: rgba(244, 201, 107, 0.16);
+  --glass-bg: rgba(11, 20, 36, 0.7);
+  --shadow-sm: 0 18px 32px rgba(0, 0, 0, 0.28);
+  --shadow-lg: 0 36px 80px rgba(0, 0, 0, 0.45);
+  --bg-gradient:
+    radial-gradient(circle at 14% 10%, rgba(71, 110, 255, 0.28), transparent 36%),
+    radial-gradient(circle at 88% 18%, rgba(19, 148, 128, 0.16), transparent 26%),
+    radial-gradient(circle at 54% 82%, rgba(122, 90, 248, 0.14), transparent 28%),
+    linear-gradient(180deg, rgba(7, 17, 31, 1), rgba(7, 17, 31, 1));
+
+  --hero-ink: #f3f7ff;
+  --hero-muted: #c9d7f0;
+  --hero-panel: rgba(13, 22, 37, 0.82);
+  --hero-panel-border: rgba(178, 193, 223, 0.12);
+  --hero-ribbon: #dce7ff;
+
+  --chart-1: #7aa2ff;
+  --chart-2: #ff9a76;
+  --chart-3: #4dd4b3;
+  --chart-4: #a98cff;
+  --chart-5: #f4c96b;
+  --chart-6: #ff7aa2;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: var(--body);
+  color: var(--ink);
+  background-color: var(--bg);
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  font-weight: 400;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: var(--ui);
+  color: inherit;
+  background: transparent;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-family: var(--display);
+  font-size: clamp(2.6rem, 5vw, 5rem);
+  line-height: 0.98;
+  letter-spacing: -0.06em;
+  margin-bottom: 24px;
+}
+
+h2 {
+  font-family: var(--display);
+  font-size: 1.8rem;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+h3,
+strong,
+.eyebrow,
+.panel-kicker,
+.button,
+.nav-link,
+input,
+select,
+th {
+  font-family: var(--ui);
+}
+
+a {
+  color: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--muted);
+  border: 4px solid var(--bg);
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary);
+}
