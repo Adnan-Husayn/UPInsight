@@ -18,7 +18,7 @@ export function Topbar({
       <div className="brand-mark">
         <span className="brand-dot"></span>
         <div>
-          <strong>Spending Analyzer</strong>
+          <strong>UPInsight</strong>
           <span>Private UPI statement intelligence</span>
         </div>
       </div>

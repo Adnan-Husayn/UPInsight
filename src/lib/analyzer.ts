@@ -1351,7 +1351,7 @@ export function parseLedgerCsv(fileName: string, csvText: string): Transaction[]
     header.length !== ledgerCsvHeader.length ||
     header.some((value, index) => value.trim() !== ledgerCsvHeader[index])
   ) {
-    throw new Error('This CSV does not match the Spending Analyzer export format.')
+    throw new Error('This CSV does not match the UPInsight export format.')
   }
 
   return rows.slice(1).map((row, index) => {

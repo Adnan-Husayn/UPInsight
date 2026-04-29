@@ -75,9 +75,9 @@ type WorkspaceState = {
 type WorkspaceStates = Record<WorkspaceName, WorkspaceState>
 
 const workspaceOptions = ['Personal', 'Business', 'Family'] as const satisfies readonly WorkspaceName[]
-const workspaceStorageKey = 'spending-analyzer-workspaces'
-const legacyStorageKey = 'spending-analyzer-data'
-const activeWorkspaceStorageKey = 'spending-analyzer-active-workspace'
+const workspaceStorageKey = 'upinsight-workspaces'
+const legacyStorageKey = 'upinsight-data'
+const activeWorkspaceStorageKey = 'upinsight-active-workspace'
 const MAX_PDF_FILES = 6
 
 const createWorkspaceState = (): WorkspaceState => ({
@@ -557,7 +557,7 @@ function App() {
       totalDebit,
       totalCredit,
       dateWindow,
-      fileName: `spending-analyzer-${new Date().toISOString().slice(0, 10)}.csv`,
+      fileName: `upinsight-${new Date().toISOString().slice(0, 10)}.csv`,
     }
   }, [activeEndDate, activeStartDate, filteredTransactions])
 
@@ -641,7 +641,7 @@ function App() {
     }
 
     if (!(file.type === 'text/csv' || file.name.toLowerCase().endsWith('.csv'))) {
-      setError('Please import a CSV file exported by Spending Analyzer.')
+      setError('Please import a CSV file exported by UPInsight.')
       setStatus('CSV import failed because the selected file is not a .csv.')
       setToastMessage('')
       return

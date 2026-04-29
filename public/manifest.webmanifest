@@ -1,6 +1,6 @@
 {
-  "name": "Spending Analyzer",
-  "short_name": "Analyzer",
+  "name": "UPInsight",
+  "short_name": "UPInsight",
   "description": "A privacy-first UPI statement analyzer with local categorization, budgeting, and offline support.",
   "start_url": "/",
   "display": "standalone",
