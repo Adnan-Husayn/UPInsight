@@ -4,8 +4,8 @@
   "description": "A privacy-first UPI statement analyzer with local categorization, budgeting, and offline support.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f6f2ea",
-  "theme_color": "#11192c",
+  "background_color": "#FBF1EE",
+  "theme_color": "#D81E69",
   "icons": [
     {
       "src": "/favicon.svg",

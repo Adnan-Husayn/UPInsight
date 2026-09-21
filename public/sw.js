@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spending-analyzer-v2'
+const CACHE_NAME = 'upinsight-v5'
 const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/favicon.svg']
 
 self.addEventListener('install', (event) => {

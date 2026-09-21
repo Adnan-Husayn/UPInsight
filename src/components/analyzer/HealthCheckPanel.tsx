@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { InfoTooltip } from '../ui/InfoTooltip'
 import type { StatementHealthReport } from '../../lib/analyzer'
 
@@ -6,83 +8,56 @@ interface HealthCheckPanelProps {
 }
 
 export function HealthCheckPanel({ health }: HealthCheckPanelProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const isSampleData = health.pageCount === 0
+
   return (
-    <section className="panel health-panel">
-      <div className="panel-header">
-        <div>
-          <div className="panel-label-with-help">
-            <p className="panel-kicker">Statement quality checks</p>
-            <InfoTooltip
-              label="What statement quality means"
-              description="This panel estimates how complete and readable the uploaded statement batch looks after parsing. Lower scores usually mean OCR-heavy pages, malformed rows, or date gaps."
-            />
-          </div>
-          <h2>Readability and parser signals</h2>
+    <section className="panel collapsible-panel full-width">
+      <div
+        className="collapsible-header"
+        onClick={() => setIsOpen(!isOpen)}
+        role="button"
+        tabIndex={0}
+      >
+        <div className="collapsible-title">
+          {isOpen ? <ChevronUp size={16} className="muted" /> : <ChevronDown size={16} className="muted" />}
+          <h3>Statement quality</h3>
+          <InfoTooltip
+            label="Statement quality"
+            description="Estimates statement readability and completeness based on embedded text, OCR fallback, and row normalization."
+          />
         </div>
-        <div className="health-score-block">
-          <span className="health-score-caption">
-            Quality score
-            <InfoTooltip
-              label="Quality score"
-              description="A quick estimate of statement reliability from 0 to 100. Higher scores usually mean cleaner pages, fewer malformed rows, and fewer parse warnings."
-              align="right"
-            />
-          </span>
-          <span className="health-score">{health.score}/100</span>
+
+        <div className="health-compact-summary mono muted">
+          {isSampleData ? (
+            <span>Sample data, no PDF parsed</span>
+          ) : (
+            <span>
+              Quality {health.score}/100 · {health.pageCount} {health.pageCount === 1 ? 'page' : 'pages'} · {health.ocrPages} OCR · {health.malformedCount} unclear
+            </span>
+          )}
         </div>
       </div>
 
-      <div className="health-meta-grid">
-        <article className="health-meta-card">
-          <div className="health-meta-label">
-            <span>Pages checked</span>
-            <InfoTooltip
-              label="Pages checked"
-              description="How many statement pages were processed in this workspace for the current batch."
-            />
-          </div>
-          <strong>{health.pageCount}</strong>
-        </article>
-        <article className="health-meta-card">
-          <div className="health-meta-label">
-            <span>Image-read pages</span>
-            <InfoTooltip
-              label="Image-read pages"
-              description="Pages where the app had to fall back to OCR because regular embedded text was missing or too weak."
-            />
-          </div>
-          <strong>{health.ocrPages}</strong>
-        </article>
-        <article className="health-meta-card">
-          <div className="health-meta-label">
-            <span>Unclear rows</span>
-            <InfoTooltip
-              label="Unclear rows"
-              description="Rows where the parser could not fully normalize the transaction shape, usually because the PDF layout was inconsistent."
-              align="right"
-            />
-          </div>
-          <strong>{health.malformedCount}</strong>
-        </article>
-      </div>
-
-      {health.issues.length === 0 ? (
-        <div className="empty-state-block">
-          <p className="empty-text">No obvious quality issues were detected.</p>
-        </div>
-      ) : (
-        <div className="health-issue-list">
-          {health.issues.map((issue) => (
-            <article className={`health-issue ${issue.severity}`} key={`${issue.title}-${issue.detail}`}>
-              <div className="health-issue-top">
-                <strong>{issue.title}</strong>
-                <span className={`meta-chip ${issue.severity === 'critical' ? 'low' : issue.severity === 'warning' ? 'medium' : 'neutral'}`}>
-                  {issue.severity}
-                </span>
-              </div>
-              <p>{issue.detail}</p>
-            </article>
-          ))}
+      {isOpen && (
+        <div className="collapsible-body">
+          {isSampleData ? (
+            <p className="empty-text">Sample statements do not include raw PDF pages or parser diagnostics.</p>
+          ) : health.issues.length === 0 ? (
+            <p className="empty-text">No parsing issues detected. All pages and rows were cleanly recognized.</p>
+          ) : (
+            <div className="health-issue-list">
+              {health.issues.map((issue) => (
+                <article className={`health-issue ${issue.severity}`} key={`${issue.title}-${issue.detail}`}>
+                  <div className="health-issue-top">
+                    <strong>{issue.title}</strong>
+                    <span className="cashflow-kind-chip">{issue.severity}</span>
+                  </div>
+                  <p>{issue.detail}</p>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>

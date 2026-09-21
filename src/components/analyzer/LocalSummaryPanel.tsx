@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import type { MonthlyNarrative } from '../../lib/analyzer'
 
 interface LocalSummaryPanelProps {
@@ -5,35 +7,40 @@ interface LocalSummaryPanelProps {
 }
 
 export function LocalSummaryPanel({ summaries }: LocalSummaryPanelProps) {
+  const [isOpen, setIsOpen] = useState(true)
+
   return (
-    <section className="panel local-summary-panel">
-      <div className="panel-header">
-        <div>
-          <p className="panel-kicker">Local monthly brief</p>
-          <h2>Private month-by-month summaries</h2>
+    <section className="panel collapsible-panel full-width">
+      <div
+        className="collapsible-header"
+        onClick={() => setIsOpen(!isOpen)}
+        role="button"
+        tabIndex={0}
+      >
+        <div className="collapsible-title">
+          {isOpen ? <ChevronUp size={16} className="muted" /> : <ChevronDown size={16} className="muted" />}
+          <h3>Monthly summary</h3>
         </div>
       </div>
 
-      {summaries.length === 0 ? (
-        <div className="empty-state-block">
-          <p className="empty-text">Monthly notes appear once enough activity is available.</p>
-          <div className="empty-preview-list">
-            <span>Top category story</span>
-            <span>Month-over-month shifts</span>
-          </div>
-        </div>
-      ) : (
-        <div className="summary-story-grid">
-          {summaries.map((summary) => (
-            <article className="summary-story-card" key={summary.month}>
-              <span>{summary.title}</span>
-              <ul className="summary-story-list">
-                {summary.bullets.map((bullet) => (
-                  <li key={bullet}>{bullet}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
+      {isOpen && (
+        <div className="collapsible-body">
+          {summaries.length === 0 ? (
+            <p className="empty-text">Monthly notes appear once enough activity is available.</p>
+          ) : (
+            <div className="summary-list">
+              {summaries.map((summary) => (
+                <article className="summary-card" key={summary.month}>
+                  <strong className="summary-month-title">{summary.title}</strong>
+                  <ul className="summary-bullets">
+                    {summary.bullets.map((bullet) => (
+                      <li key={bullet}>{bullet}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>

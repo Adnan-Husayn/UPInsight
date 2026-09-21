@@ -1,4 +1,4 @@
-import { UploadCloud } from 'lucide-react'
+import { ThemeToggle } from '../ui/ThemeToggle'
 
 export type ViewMode = 'home' | 'tool'
 
@@ -15,37 +15,39 @@ export function Topbar({
 }: TopbarProps) {
   return (
     <header className="topbar">
-      <div className="brand-mark">
-        <span className="brand-dot"></span>
-        <div>
+      <div className="topbar-inner">
+        <div 
+          className="brand-mark" 
+          onClick={() => setView('home')} 
+          role="button" 
+          tabIndex={0}
+        >
           <strong>UPInsight</strong>
-          <span>Private UPI statement intelligence</span>
         </div>
-      </div>
-
-      <nav className="topnav">
-        <button
-          className={`nav-link ${view === 'home' ? 'active' : ''}`}
-          onClick={() => setView('home')}
-        >
-          Home
-        </button>
-        <button
-          className={`nav-link ${view === 'tool' ? 'active' : ''}`}
-          onClick={() => setView('tool')}
-        >
-          Analyzer
-        </button>
-      </nav>
-
-      <div className="topbar-actions">
-        <button 
-          className="upload-btn" 
-          onClick={onUploadClick}
-        >
-          <UploadCloud size={18} strokeWidth={2.5} />
-          Upload PDF
-        </button>
+        <nav className="topnav">
+          <button
+            className={`nav-link ${view === 'home' ? 'active' : ''}`}
+            onClick={() => setView('home')}
+          >
+            Overview
+          </button>
+          <button
+            className={`nav-link ${view === 'tool' ? 'active' : ''}`}
+            onClick={() => setView('tool')}
+          >
+            Analyzer
+          </button>
+        </nav>
+        <div className="topbar-actions">
+          <ThemeToggle />
+          <button 
+            className="button button-primary compact upload-statement-btn" 
+            onClick={onUploadClick}
+          >
+            <span className="desktop-btn-label">Upload statement</span>
+            <span className="mobile-btn-label">Upload</span>
+          </button>
+        </div>
       </div>
     </header>
   )

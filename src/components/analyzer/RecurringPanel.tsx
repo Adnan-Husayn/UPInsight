@@ -12,59 +12,49 @@ export function RecurringPanel({ recurringInsights, onRecurringSelect }: Recurri
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <section className="panel recurring-panel">
+    <section className="panel collapsible-panel full-width">
       <div
-        className="panel-header collapsible-panel-header"
-        data-open={isOpen}
+        className="collapsible-header"
         onClick={() => setIsOpen(!isOpen)}
+        role="button"
+        tabIndex={0}
       >
-        <div className="collapsible-panel-title">
-          {isOpen ? <ChevronUp size={20} className="muted-icon" /> : <ChevronDown size={20} className="muted-icon" />}
-          <div>
-            <p className="panel-kicker">Recurring signals</p>
-            <h2>Likely subscriptions & repeat payments</h2>
-          </div>
+        <div className="collapsible-title">
+          {isOpen ? <ChevronUp size={16} className="muted" /> : <ChevronDown size={16} className="muted" />}
+          <h3>Recurring payments</h3>
         </div>
+        <span className="collapsible-count mono muted">{recurringInsights.length}</span>
       </div>
 
       {isOpen && (
-        recurringInsights.length === 0 ? (
-          <div className="empty-state-block">
-            <p className="empty-text">Recurring merchants appear when a pattern is detected.</p>
-            <div className="empty-preview-list">
-              <span>Netflix monthly</span>
-              <span>Rent recurring</span>
-            </div>
-          </div>
-        ) : (
-          <div className="recurring-grid">
-            {recurringInsights.map((insight) => (
-              <button
-                type="button"
-                className="recurring-card interactive-list-item"
-                key={insight.key}
-                onClick={() => onRecurringSelect?.(insight.vendor)}
-                aria-label={`${insight.vendor}, ${insight.cadence}, ${formatCurrency(insight.amount)}. Opens matching ledger rows.`}
-              >
-                <div className="recurring-card-top">
-                  <div>
+        <div className="collapsible-body">
+          {recurringInsights.length === 0 ? (
+            <p className="empty-text">No recurring merchants detected.</p>
+          ) : (
+            <div className="recurring-list">
+              {recurringInsights.map((insight) => (
+                <div
+                  className="recurring-row"
+                  key={insight.key}
+                  onClick={() => onRecurringSelect?.(insight.vendor)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="recurring-row-left">
                     <strong>{insight.vendor}</strong>
-                    <span>{insight.source}</span>
+                    <span className="recurring-cadence-chip">{insight.cadence}</span>
+                    <span className="muted text-xs">
+                      {insight.count} charges · Last {formatStatementDate(insight.lastDate)}
+                    </span>
                   </div>
-                  <span className="meta-chip neutral">{insight.cadence}</span>
+                  <div className="recurring-row-right">
+                    <strong className="mono">{formatCurrency(insight.amount)}</strong>
+                  </div>
                 </div>
-                <div className="recurring-values">
-                  <strong>{formatCurrency(insight.amount)}</strong>
-                  <span>
-                    {insight.count} occurrence{insight.count === 1 ? '' : 's'}
-                  </span>
-                </div>
-                <p>Last charged {formatStatementDate(insight.lastDate)}</p>
-                <span className="drilldown-hint">Open ledger</span>
-              </button>
-            ))}
-          </div>
-        )
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </section>
   )

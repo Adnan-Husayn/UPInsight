@@ -1,40 +1,4 @@
-import { ArrowUpRight } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { formatCurrency } from '../../lib/analyzer'
-
-export function MetricCard({
-  label,
-  value,
-  accent,
-  onClick,
-}: {
-  label: string
-  value: string
-  accent: 'sand' | 'sky' | 'mint' | 'rose' | 'ink'
-  onClick?: () => void
-}) {
-  return (
-    <motion.button
-      type="button"
-      className={`metric-card ${accent} ${onClick ? 'interactive-card' : ''}`}
-      whileHover={onClick ? { y: -2 } : undefined}
-      transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-      onClick={onClick}
-      aria-label={onClick ? `${label}: ${value}. Opens matching ledger results.` : undefined}
-    >
-      <div className="metric-card-copy">
-        <span className="metric-card-label">{label}</span>
-        <strong className="metric-card-value">{value}</strong>
-      </div>
-      {onClick ? (
-        <span className="drilldown-hint">
-          Open ledger
-          <ArrowUpRight size={14} strokeWidth={2} />
-        </span>
-      ) : null}
-    </motion.button>
-  )
-}
 
 interface MetricGridProps {
   statementsCount: number
@@ -42,24 +6,38 @@ interface MetricGridProps {
   totalIncome: number
   totalExpense: number
   net: number
-  onCardClick?: (card: 'statements' | 'transactions' | 'income' | 'expense' | 'net') => void
+  recurringCount: number
 }
 
 export function MetricGrid({
-  statementsCount,
   transactionCount,
   totalIncome,
   totalExpense,
   net,
-  onCardClick,
+  recurringCount,
 }: MetricGridProps) {
   return (
-    <section className="summary-grid">
-      <MetricCard label="Statements" value={String(statementsCount)} accent="sand" onClick={() => onCardClick?.('statements')} />
-      <MetricCard label="Transactions" value={String(transactionCount)} accent="sky" onClick={() => onCardClick?.('transactions')} />
-      <MetricCard label="Total income" value={formatCurrency(totalIncome)} accent="mint" onClick={() => onCardClick?.('income')} />
-      <MetricCard label="Total expenses" value={formatCurrency(totalExpense)} accent="rose" onClick={() => onCardClick?.('expense')} />
-      <MetricCard label="Net change" value={formatCurrency(net)} accent="ink" onClick={() => onCardClick?.('net')} />
+    <section className="kpi-strip">
+      <div className="kpi-item">
+        <span className="kpi-label">Spent</span>
+        <strong className="kpi-value mono">{formatCurrency(totalExpense)}</strong>
+      </div>
+      <div className="kpi-item">
+        <span className="kpi-label">Received</span>
+        <strong className="kpi-value mono credit">{formatCurrency(totalIncome)}</strong>
+      </div>
+      <div className="kpi-item">
+        <span className="kpi-label">Net</span>
+        <strong className={`kpi-value mono ${net >= 0 ? 'credit' : 'debit'}`}>{formatCurrency(net)}</strong>
+      </div>
+      <div className="kpi-item">
+        <span className="kpi-label">Transactions</span>
+        <strong className="kpi-value mono">{transactionCount}</strong>
+      </div>
+      <div className="kpi-item">
+        <span className="kpi-label">Recurring</span>
+        <strong className="kpi-value mono">{recurringCount}</strong>
+      </div>
     </section>
   )
 }

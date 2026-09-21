@@ -1,49 +1,106 @@
 :root {
-  --display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
-  --body: "Iowan Old Style", Georgia, serif;
-  --ui: "Inter", "Avenir Next", "Segoe UI", sans-serif;
+  --display: "Bricolage Grotesque", "Instrument Sans", sans-serif;
+  --body: "Instrument Sans", system-ui, sans-serif;
+  --ui: "Instrument Sans", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
 
-  --bg: #07111f;
-  --panel: rgba(12, 22, 38, 0.82);
-  --surface: #101c31;
-  --surface-muted: #16233c;
-  --surface-strong: #1b2b48;
-  --border: rgba(148, 167, 201, 0.16);
-  --border-strong: rgba(173, 190, 219, 0.28);
-  --ink: #edf4ff;
-  --muted: #97a9c6;
-  --muted-strong: #cbd8ef;
-  --primary: #7aa2ff;
-  --primary-hover: #99b9ff;
-  --primary-soft: rgba(122, 162, 255, 0.14);
-  --primary-contrast: #08111f;
-  --success: #4ade80;
-  --success-soft: rgba(74, 222, 128, 0.14);
-  --danger: #ff8d85;
-  --danger-soft: rgba(255, 141, 133, 0.14);
-  --warning: #f4c96b;
-  --warning-soft: rgba(244, 201, 107, 0.16);
-  --glass-bg: rgba(11, 20, 36, 0.7);
-  --shadow-sm: 0 18px 32px rgba(0, 0, 0, 0.28);
-  --shadow-lg: 0 36px 80px rgba(0, 0, 0, 0.45);
-  --bg-gradient:
-    radial-gradient(circle at 14% 10%, rgba(71, 110, 255, 0.28), transparent 36%),
-    radial-gradient(circle at 88% 18%, rgba(19, 148, 128, 0.16), transparent 26%),
-    radial-gradient(circle at 54% 82%, rgba(122, 90, 248, 0.14), transparent 28%),
-    linear-gradient(180deg, rgba(7, 17, 31, 1), rgba(7, 17, 31, 1));
+  --bg: #FBF1EE;
+  --panel: #FFFFFF;
+  --card: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface-muted: #F1E0DC;
+  --surface-strong: #E6CFCA;
+  --border: #E3CFCA;
+  --border-strong: #1B0F19;
+  --line: #1B0F19;
+  --ink: #1B0F19;
+  --muted: #7A6270;
+  --muted-strong: #4A3543;
+  --pill: #1B0F19;
+  --on-pill: #FFFFFF;
+  --primary: #D81E69;
+  --primary-hover: #B5104F;
+  --primary-soft: rgba(216,30,105,0.09);
+  --primary-contrast: #FFFFFF;
+  --on-primary: #FFFFFF;
+  --lime: #7CF0C4;
+  --pulse: rgba(216,30,105,0.5);
+  --shine: rgba(255, 255, 255, 0.55);
+  --banner: #7CF0C4;
+  --banner-ink: #1B0F19;
+  --success: #0E8F5A;
+  --success-soft: rgba(14, 143, 90, 0.12);
+  --danger: #C4181F;
+  --danger-soft: rgba(214, 36, 58, 0.10);
+  --debit: #C4181F;
+  --warning: #C98A00;
+  --warning-soft: rgba(201, 138, 0, 0.14);
+  --glass-bg: #FBF1EE;
+  --shadow-sm: 2px 2px 0 #1B0F19;
+  --shadow-lg: 4px 4px 0 #1B0F19;
+  --bg-gradient: none;
 
-  --hero-ink: #f3f7ff;
-  --hero-muted: #c9d7f0;
-  --hero-panel: rgba(13, 22, 37, 0.82);
-  --hero-panel-border: rgba(178, 193, 223, 0.12);
-  --hero-ribbon: #dce7ff;
+  --hero-ink: #1B0F19;
+  --hero-muted: #7A6270;
+  --hero-panel: #FFFFFF;
+  --hero-panel-border: #1B0F19;
+  --hero-ribbon: transparent;
 
-  --chart-1: #7aa2ff;
-  --chart-2: #ff9a76;
-  --chart-3: #4dd4b3;
-  --chart-4: #a98cff;
-  --chart-5: #f4c96b;
-  --chart-6: #ff7aa2;
+  --chart-1: #D81E69;
+  --chart-2: #1B0F19;
+  --chart-3: #12B886;
+  --chart-4: #FF9F1C;
+  --chart-5: #3F5BFF;
+  --chart-6: #8E5CF7;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #130C12;
+  --panel: #1E1420;
+  --card: #1E1420;
+  --surface: #1E1420;
+  --surface-muted: #291B2A;
+  --surface-strong: #392539;
+  --border: #392539;
+  --border-strong: #5B3F58;
+  --line: #5B3F58;
+  --ink: #FBEFF3;
+  --muted: #B79BAC;
+  --muted-strong: #DCC6D3;
+  --pill: #FBEFF3;
+  --on-pill: #130C12;
+  --primary: #FF5C9E;
+  --primary-hover: #FF80B3;
+  --primary-soft: rgba(255,92,158,0.15);
+  --on-primary: #1B0F19;
+  --lime: #7CF0C4;
+  --pulse: rgba(255,92,158,0.55);
+  --shine: rgba(255, 255, 255, 0.28);
+  --banner: #12382D;
+  --banner-ink: #9CF7D6;
+  --success: #3DDC97;
+  --success-soft: rgba(61, 220, 151, 0.14);
+  --danger: #FF7A8A;
+  --danger-soft: rgba(255, 107, 129, 0.14);
+  --debit: #FF7A8A;
+  --warning: #FFC94D;
+  --warning-soft: rgba(255, 201, 77, 0.16);
+  --glass-bg: #130C12;
+  --shadow-sm: 2px 2px 0 #000;
+  --shadow-lg: 4px 4px 0 #000;
+  --hero-ink: #FBEFF3;
+  --hero-muted: #B79BAC;
+  --hero-panel: #1E1420;
+  --hero-panel-border: #5B3F58;
+
+  --chart-1: #FF5C9E;
+  --chart-2: #FBEFF3;
+  --chart-3: #4FE3B0;
+  --chart-4: #FFB347;
+  --chart-5: #7C93FF;
+  --chart-6: #C39BFF;
 }
 
 * {
@@ -61,15 +118,13 @@ body {
   font-family: var(--body);
   color: var(--ink);
   background-color: var(--bg);
-  background-image: var(--bg-gradient);
-  background-attachment: fixed;
+  background-image: none;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   font-weight: 400;
-  transition: background-color 0.35s ease, color 0.35s ease;
 }
 
 button,
@@ -81,37 +136,25 @@ textarea {
   background: transparent;
 }
 
-h1,
-h2,
-h3,
-p {
+h1, h2, h3, p {
   margin: 0;
+  font-family: var(--display);
 }
 
 h1 {
-  font-family: var(--display);
-  font-size: clamp(2.6rem, 5vw, 5rem);
-  line-height: 0.98;
-  letter-spacing: -0.06em;
+  font-weight: 800;
+  font-size: 64px;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
   margin-bottom: 24px;
 }
 
 h2 {
-  font-family: var(--display);
-  font-size: 1.8rem;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  font-size: 28px;
+  line-height: 1.2;
 }
 
-h3,
-strong,
-.eyebrow,
-.panel-kicker,
-.button,
-.nav-link,
-input,
-select,
-th {
+h3, strong, .eyebrow, .panel-kicker, .button, .nav-link, input, select, th {
   font-family: var(--ui);
 }
 
@@ -124,22 +167,20 @@ a {
 }
 
 ::-webkit-scrollbar {
-  width: 14px;
-  height: 14px;
+  width: 8px;
+  height: 8px;
 }
-
 ::-webkit-scrollbar-track {
   background: var(--bg);
-  border-left: 1px solid var(--border);
 }
-
 ::-webkit-scrollbar-thumb {
-  background-color: var(--muted);
-  border: 4px solid var(--bg);
-  border-radius: 999px;
-  transition: background-color 0.2s ease;
+  background-color: var(--border);
+  border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--primary);
+  background-color: var(--muted);
+}
+.mono {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
 }

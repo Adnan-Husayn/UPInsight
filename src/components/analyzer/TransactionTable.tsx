@@ -1,6 +1,5 @@
-import { useState, type Dispatch, type SetStateAction } from 'react'
-import { motion } from 'framer-motion'
-import { formatCurrency, formatStatementDate } from '../../lib/analyzer'
+import { type Dispatch, type SetStateAction, useState, useEffect } from 'react'
+import { formatCurrency, formatTransactionDateTime } from '../../lib/analyzer'
 import type { Transaction } from '../../lib/types'
 
 interface TransactionTableProps {
@@ -18,8 +17,8 @@ interface TransactionTableProps {
   setSourceFilter: (s: string) => void
   typeFilter: string
   setTypeFilter: (s: string) => void
-  dateFilter: string
-  setDateFilter: (s: string) => void
+  dateFilter?: string
+  setDateFilter?: (s: string) => void
   categoryOptions: string[]
   sourceOptions: string[]
   availableCategories: string[]
@@ -28,11 +27,16 @@ interface TransactionTableProps {
   onApplyQueryExample: (query: string) => void
 }
 
+const placeholders = [
+  "Search merchant, UPI ID, amount…",
+  "Try: food spending above ₹500 in march",
+  "Try: salary credits in april"
+]
+
 export function TransactionTable({
   filteredTransactions,
   selectedTransactions,
   selectedTransactionIds,
-  selectedTransactionsTotal,
   setSelectedTransactionIds,
   toggleSelectedTransaction,
   search,
@@ -43,317 +47,245 @@ export function TransactionTable({
   setSourceFilter,
   typeFilter,
   setTypeFilter,
-  dateFilter,
+  dateFilter = '',
   setDateFilter,
   categoryOptions,
   sourceOptions,
   availableCategories,
   onInlineApplyRule,
-  queryInsights,
-  onApplyQueryExample,
 }: TransactionTableProps) {
   const allSelected = filteredTransactions.length > 0 && selectedTransactions.length === filteredTransactions.length
-  const [activeEditorId, setActiveEditorId] = useState<string | null>(null)
-  const [draftCategories, setDraftCategories] = useState<Record<string, string>>({})
+  const [placeholderIndex, setPlaceholderIndex] = useState(0)
 
-  const handleSelectAll = () => {
-    if (allSelected) {
-      setSelectedTransactionIds([])
-    } else {
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPlaceholderIndex((current) => (current + 1) % placeholders.length)
+    }, 4000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
       setSelectedTransactionIds(filteredTransactions.map(t => t.id))
+    } else {
+      setSelectedTransactionIds([])
     }
   }
 
-  const renderMetaTags = (transaction: Transaction) => (
-    <div className="table-tags">
-      {transaction.confidenceLabel !== 'high' ? (
-        <span className={`meta-chip ${transaction.confidenceLabel}`}>{transaction.confidenceLabel} confidence</span>
-      ) : null}
-      {transaction.isDuplicate ? <span className="meta-chip neutral">Deduped</span> : null}
-      {transaction.recurringCount > 1 ? (
-        <span className="meta-chip neutral">
-          {transaction.recurringCadence || 'Recurring'} • {transaction.recurringCount}x
-        </span>
-      ) : null}
-      {transaction.category === 'Uncategorized' ? <span className="meta-chip neutral">Needs category</span> : null}
-    </div>
-  )
+  const [bulkCategory, setBulkCategory] = useState('')
 
-  const getDraftCategory = (transaction: Transaction) =>
-    draftCategories[transaction.id] ??
-    (transaction.category !== 'Uncategorized' ? transaction.category : '')
-
-  const renderInlineRuleEditor = (transaction: Transaction) => {
-    const isOpen = activeEditorId === transaction.id
-    const draftCategory = getDraftCategory(transaction)
-
-    return (
-      <div className="inline-rule-shell">
-        <button
-          type="button"
-          className="button button-tertiary compact"
-          onClick={() => {
-            setActiveEditorId((current) => (current === transaction.id ? null : transaction.id))
-            setDraftCategories((current) =>
-              transaction.id in current
-                ? current
-                : {
-                    ...current,
-                    [transaction.id]: transaction.category !== 'Uncategorized' ? transaction.category : '',
-                  },
-            )
-          }}
-        >
-          {isOpen ? 'Close editor' : 'Categorize'}
-        </button>
-
-        {isOpen ? (
-          <div className="inline-rule-editor">
-            <select
-              value={draftCategory}
-              onChange={(event) =>
-                setDraftCategories((current) => ({
-                  ...current,
-                  [transaction.id]: event.target.value,
-                }))
-              }
-            >
-              <option value="">Assign category…</option>
-              {availableCategories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              className="button button-secondary compact"
-              onClick={() => onInlineApplyRule(transaction, draftCategory)}
-              disabled={!draftCategory}
-            >
-              Save rule
-            </button>
-          </div>
-        ) : null}
-      </div>
-    )
+  const applyBulkCategory = () => {
+    if (!bulkCategory) return
+    selectedTransactions.forEach(t => {
+      onInlineApplyRule(t, bulkCategory)
+    })
+    setBulkCategory('')
+    setSelectedTransactionIds([])
   }
 
   return (
-    <div className="panel wide-panel">
-      <div className="panel-header">
-        <div>
-          <p className="panel-kicker">Ledger explorer</p>
-          <h2>Transactions</h2>
-          <p className="panel-support-note">Search, filter, select, and categorize rows inline.</p>
-        </div>
-      </div>
-      <div className="filters">
+    <div className="panel transaction-panel">
+      <div className="filter-bar">
         <input
+          className="search-input"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Try: food spending above ₹500 in march"
+          placeholder={placeholders[placeholderIndex]}
         />
-        <input 
-          type="date" 
-          value={dateFilter}
-          onChange={(event) => setDateFilter(event.target.value)}
-          placeholder="Filter by date"
-        />
-        <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
-          {categoryOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        <select value={sourceFilter} onChange={(event) => setSourceFilter(event.target.value)}>
-          {sourceOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-        <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)}>
-          <option value="All">All types</option>
-          <option value="credit">Credit</option>
-          <option value="debit">Debit</option>
-        </select>
+        <div className="filter-controls-group">
+          <div className="select-wrap">
+            <select 
+              value={categoryFilter} 
+              onChange={(event) => setCategoryFilter(event.target.value)}
+              aria-label="Filter by category"
+            >
+              <option value="All">All categories</option>
+              {categoryOptions.filter(c => c !== 'All').map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+          <div className="select-wrap">
+            <select 
+              value={sourceFilter} 
+              onChange={(event) => setSourceFilter(event.target.value)}
+              aria-label="Filter by source"
+            >
+              <option value="All">All sources</option>
+              {sourceOptions.filter(s => s !== 'All').map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+          <div className="select-wrap">
+            <select 
+              value={typeFilter} 
+              onChange={(event) => setTypeFilter(event.target.value)}
+              aria-label="Filter by type"
+            >
+              <option value="All">All types</option>
+              <option value="credit">Credits only</option>
+              <option value="debit">Debits only</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div className="ledger-query-bar">
-        {queryInsights.length > 0 ? (
-          <div className="empty-preview-list">
-            {queryInsights.map((item) => (
-              <span key={item}>{item}</span>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-preview-list">
-            {[
-              'food spending above ₹500 in march',
-              'salary credits in april',
-              'refunds from google pay',
-            ].map((example) => (
-              <button
-                type="button"
-                key={example}
-                className="query-example-chip"
-                onClick={() => onApplyQueryExample(example)}
-              >
-                {example}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      {dateFilter && (
+        <div className="active-date-chip-bar">
+          <span className="active-date-label">Filtered by date: <strong>{dateFilter}</strong></span>
+          <button className="text-link" onClick={() => setDateFilter?.('')}>Clear date filter</button>
+        </div>
+      )}
 
-      <div className="selection-toolbar">
-        <button className="button button-secondary compact" onClick={handleSelectAll}>
-          {allSelected ? 'Deselect all' : 'Select all displayed'}
-        </button>
-        <button
-          className="button button-tertiary compact"
-          onClick={() => setSelectedTransactionIds([])}
-          disabled={selectedTransactions.length === 0}
-        >
-          Clear selection
-        </button>
-      </div>
+      {selectedTransactions.length > 0 && (
+        <div className="bulk-actions-bar">
+          <span>{selectedTransactions.length} selected</span>
+          <select 
+            value={bulkCategory} 
+            onChange={(e) => setBulkCategory(e.target.value)}
+            className="bulk-select"
+          >
+            <option value="">Set category ▾</option>
+            {availableCategories.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+          <button className="button button-primary compact" onClick={applyBulkCategory} disabled={!bulkCategory}>
+            Apply
+          </button>
+          <button className="button button-tertiary compact" onClick={() => setSelectedTransactionIds([])}>
+            Clear
+          </button>
+        </div>
+      )}
 
       <div className="table-wrap desktop-ledger-table">
-        <table>
+        <table className="data-table">
           <thead>
             <tr>
-              <th>Select</th>
+              <th className="th-checkbox">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={(e) => handleSelectAll(e.target.checked)}
+                  aria-label="Select all transactions"
+                />
+              </th>
               <th>Date</th>
-              <th>Details</th>
+              <th>Merchant</th>
               <th>Category</th>
               <th>Source</th>
-              <th>Type</th>
-              <th>Amount</th>
+              <th className="text-right">Amount</th>
             </tr>
           </thead>
-          <motion.tbody 
-            initial="hidden"
-            animate="visible"
-            variants={{
-              visible: { transition: { staggerChildren: 0.02 } }
-            }}
-          >
+          <tbody>
             {filteredTransactions.length === 0 ? (
               <tr>
-                <td colSpan={7} className="table-empty">
-                  <div className="empty-state-block">
-                    <p className="empty-text">No transactions match the current filters.</p>
-                    <div className="empty-preview-list">
-                      <span>Vendor search</span>
-                      <span>Inline category fixes</span>
-                    </div>
-                  </div>
+                <td colSpan={6} className="text-center p-8 empty-text">
+                  No transactions match these filters.{' '}
+                  <button className="text-link" onClick={() => {
+                    setSearch('')
+                    setCategoryFilter('All')
+                    setSourceFilter('All')
+                    setTypeFilter('All')
+                    setDateFilter?.('')
+                  }}>Clear filters</button>
                 </td>
               </tr>
             ) : (
-              filteredTransactions.map((transaction) => (
-                <motion.tr 
-                  key={transaction.id}
-                  variants={{
-                    hidden: { opacity: 0, y: 4 },
-                    visible: { opacity: 1, y: 0 }
-                  }}
-                >
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={selectedTransactionIds.includes(transaction.id)}
-                      onChange={() => toggleSelectedTransaction(transaction.id)}
-                    />
-                  </td>
-                  <td>
-                    <div className="table-date">
-                      <strong>{formatStatementDate(transaction.date)}</strong>
-                      <span>{transaction.time || 'Time unavailable'}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="table-details">
-                      <strong>{transaction.description}</strong>
-                      <span>{transaction.accountHint || transaction.referenceId || 'No reference details'}</span>
-                      {transaction.referenceId ? <span>ID: {transaction.referenceId}</span> : null}
-                      {transaction.utr ? <span>UTR: {transaction.utr}</span> : null}
-                      {renderMetaTags(transaction)}
-                      {renderInlineRuleEditor(transaction)}
-                    </div>
-                  </td>
-                  <td>{transaction.category}</td>
-                  <td>{transaction.source}</td>
-                  <td>
-                    <span className={`pill ${transaction.type}`}>{transaction.type}</span>
-                  </td>
-                  <td className={`amount-cell ${transaction.type}`}>
-                    {transaction.type === 'credit' ? '+' : '-'}
-                    {formatCurrency(transaction.amount)}
-                  </td>
-                </motion.tr>
-              ))
+              filteredTransactions.map((transaction) => {
+                const isLowConfidence = transaction.confidenceLabel !== 'high' || transaction.category === 'Uncategorized'
+                const sign = transaction.type === 'debit' ? '−' : '+'
+                return (
+                  <tr key={transaction.id}>
+                    <td className="th-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={selectedTransactionIds.includes(transaction.id)}
+                        onChange={() => toggleSelectedTransaction(transaction.id)}
+                        aria-label={`Select transaction from ${transaction.vendor || transaction.description}`}
+                      />
+                    </td>
+                    <td className="mono muted text-xs nowrap">
+                      {formatTransactionDateTime(transaction.date, transaction.time)}
+                    </td>
+                    <td>
+                      <div className="merchant-cell" title={`${transaction.accountHint || ''} ${transaction.referenceId || ''}`}>
+                        {transaction.vendor || transaction.description}
+                      </div>
+                    </td>
+                    <td className="category-cell">
+                      {isLowConfidence && <span className="amber-dot" title="Auto-categorized, low confidence"></span>}
+                      <select 
+                        value={transaction.category !== 'Uncategorized' ? transaction.category : ''}
+                        onChange={(e) => onInlineApplyRule(transaction, e.target.value)}
+                        className={`inline-select ${transaction.category === 'Uncategorized' ? 'uncategorized' : ''}`}
+                      >
+                        <option value="">Uncategorized</option>
+                        {availableCategories.map(cat => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="muted text-xs">{transaction.source}</td>
+                    <td className={`text-right mono ${transaction.type}`}>
+                      {sign}{formatCurrency(transaction.amount)}
+                    </td>
+                  </tr>
+                )
+              })
             )}
-          </motion.tbody>
+          </tbody>
         </table>
       </div>
-
+      
       <div className="mobile-ledger-list">
         {filteredTransactions.length === 0 ? (
-          <div className="table-empty mobile-table-empty">No transactions match the current filters.</div>
+          <div className="text-center p-8 empty-text">No transactions match these filters.</div>
         ) : (
-          filteredTransactions.map((transaction) => (
-            <article className="transaction-card" key={transaction.id}>
-              <div className="transaction-card-top">
-                <label className="transaction-select">
-                  <input
-                    type="checkbox"
-                    checked={selectedTransactionIds.includes(transaction.id)}
-                    onChange={() => toggleSelectedTransaction(transaction.id)}
-                  />
-                  <span>{formatStatementDate(transaction.date)}</span>
-                </label>
-                <strong className={`amount-cell ${transaction.type}`}>
-                  {transaction.type === 'credit' ? '+' : '-'}
-                  {formatCurrency(transaction.amount)}
-                </strong>
+          filteredTransactions.map((transaction) => {
+            const sign = transaction.type === 'debit' ? '−' : '+'
+            const shortSource = transaction.source === 'Google Pay' ? 'GPay' : transaction.source
+            return (
+              <div className="mobile-row" key={transaction.id}>
+                <div className="mobile-row-top">
+                  <span className="mobile-merchant" title={transaction.vendor || transaction.description}>
+                    {transaction.vendor || transaction.description}
+                  </span>
+                  <span className={`mobile-amount mono ${transaction.type}`}>
+                    {sign}{formatCurrency(transaction.amount)}
+                  </span>
+                </div>
+                <div className="mobile-row-bottom">
+                  <span className="mobile-meta">
+                    {formatTransactionDateTime(transaction.date, transaction.time)} · {shortSource}
+                  </span>
+                  <div className="category-chip-wrap">
+                    <span 
+                      className={`category-chip-text ${transaction.category === 'Uncategorized' ? 'uncategorized' : ''}`}
+                      title={transaction.category}
+                    >
+                      {transaction.category} ▾
+                    </span>
+                    <select 
+                      value={transaction.category !== 'Uncategorized' ? transaction.category : ''}
+                      onChange={(e) => onInlineApplyRule(transaction, e.target.value)}
+                      className="category-chip-select-overlay"
+                      aria-label={`Change category for ${transaction.vendor || transaction.description}`}
+                    >
+                      <option value="">Uncategorized</option>
+                      {availableCategories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
-              <strong className="transaction-card-title">{transaction.description}</strong>
-              <p className="transaction-card-subtitle">
-                {transaction.time || 'Time unavailable'} • {transaction.source} • {transaction.category}
-              </p>
-              <p className="transaction-card-hint">
-                {transaction.accountHint || transaction.referenceId || 'No reference details'}
-              </p>
-              {transaction.referenceId ? <p className="transaction-card-hint">ID: {transaction.referenceId}</p> : null}
-              {transaction.utr ? <p className="transaction-card-hint">UTR: {transaction.utr}</p> : null}
-              {renderMetaTags(transaction)}
-              {renderInlineRuleEditor(transaction)}
-              <div className="transaction-card-footer">
-                <span className={`pill ${transaction.type}`}>{transaction.type}</span>
-                <span>{transaction.vendor || 'Unknown vendor'}</span>
-              </div>
-            </article>
-          ))
+            )
+          })
         )}
       </div>
-
-      {selectedTransactions.length > 0 && (
-        <div className="receipt-panel">
-          <h3 className="receipt-title">Selection receipt</h3>
-          <div className="receipt-row">
-            <span>Items Selected</span>
-            <strong>{selectedTransactions.length}</strong>
-          </div>
-          <div className="receipt-row receipt-total-row">
-            <span>Total Sum</span>
-            <strong>{formatCurrency(selectedTransactionsTotal)}</strong>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

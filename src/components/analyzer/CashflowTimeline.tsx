@@ -11,60 +11,50 @@ export function CashflowTimeline({ events, onSelectEvent }: CashflowTimelineProp
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <section className="panel cashflow-panel">
+    <section className="panel collapsible-panel full-width">
       <div
-        className="panel-header collapsible-panel-header"
-        data-open={isOpen}
+        className="collapsible-header"
         onClick={() => setIsOpen(!isOpen)}
+        role="button"
+        tabIndex={0}
       >
-        <div className="collapsible-panel-title">
-          {isOpen ? <ChevronUp size={20} className="muted-icon" /> : <ChevronDown size={20} className="muted-icon" />}
-          <div>
-            <p className="panel-kicker">Cash flow timeline</p>
-            <h2>Spikes, refunds, and salary markers</h2>
-          </div>
+        <div className="collapsible-title">
+          {isOpen ? <ChevronUp size={16} className="muted" /> : <ChevronDown size={16} className="muted" />}
+          <h3>Unusual transactions</h3>
         </div>
+        <span className="collapsible-count mono muted">{events.length}</span>
       </div>
 
       {isOpen && (
-        events.length === 0 ? (
-          <div className="empty-state-block">
-            <p className="empty-text">Cash flow markers appear when notable events are detected.</p>
-            <div className="empty-preview-list">
-              <span>Salary credits</span>
-              <span>Large-spend spikes</span>
+        <div className="collapsible-body">
+          {events.length === 0 ? (
+            <p className="empty-text">No spikes, refunds, or unusual markers found in this period.</p>
+          ) : (
+            <div className="cashflow-timeline-list">
+              {events.map((event) => (
+                <div
+                  className="cashflow-event-row"
+                  key={event.id}
+                  onClick={() => onSelectEvent(event)}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="cashflow-event-left">
+                    <span className="mono muted">{formatStatementDate(event.date)}</span>
+                    <strong className="cashflow-event-label">{event.label}</strong>
+                    <span className="cashflow-kind-chip">{event.kind}</span>
+                  </div>
+                  <div className="cashflow-event-right">
+                    <span className={`mono ${event.type === 'credit' ? 'credit' : 'debit'}`}>
+                      {event.type === 'credit' ? '+' : '−'}
+                      {formatCurrency(event.amount)}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
-        ) : (
-          <div className="cashflow-timeline">
-            {events.map((event) => (
-              <button
-                type="button"
-                className="cashflow-event"
-                key={event.id}
-                onClick={() => onSelectEvent(event)}
-                aria-label={`${event.label}, ${formatCurrency(event.amount)}, ${event.kind}. Opens matching ledger rows.`}
-              >
-                <div className="cashflow-event-marker">
-                  <span className={`timeline-dot ${event.kind}`}></span>
-                  <span>{formatStatementDate(event.date)}</span>
-                </div>
-                <div className="cashflow-event-copy">
-                  <strong>{event.label}</strong>
-                  <p>{event.detail}</p>
-                </div>
-                <div className="cashflow-event-amount">
-                  <span className={`meta-chip neutral`}>{event.kind}</span>
-                  <strong className={event.type === 'credit' ? 'amount-positive' : 'amount-negative'}>
-                    {event.type === 'credit' ? '+' : '-'}
-                    {formatCurrency(event.amount)}
-                  </strong>
-                  <span className="drilldown-hint">Open ledger</span>
-                </div>
-              </button>
-            ))}
-          </div>
-        )
+          )}
+        </div>
       )}
     </section>
   )

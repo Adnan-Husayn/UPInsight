@@ -1076,17 +1076,23 @@ export function buildMonthlyNarratives(transactions: Transaction[]) {
       ? monthKey
       : new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' }).format(monthDate)
 
-    const bullets = [
-      `${title} closed with ${net >= 0 ? 'a surplus' : 'a deficit'} of ${formatCurrency(Math.abs(net))}, on income of ${formatCurrency(income)} and expenses of ${formatCurrency(expense)}.`,
-      topCategory
-        ? `Top outflow was ${topCategory.category} at ${formatCurrency(topCategory.amount)}${topVendor ? `, led by ${topVendor.vendor}.` : '.'}`
-        : 'No debit transactions were found in this month.',
-      refundTotal > 0
-        ? `Refunds and reversals added back ${formatCurrency(refundTotal)} this month.`
-        : delta === null
-          ? 'This is the first month in the current range, so there is no previous-month comparison yet.'
-          : `Expenses ${delta >= 0 ? 'rose' : 'fell'} ${Math.abs(delta).toFixed(0)}% versus the previous month.`,
+    const netFormatted = `${net < 0 ? '−' : ''}${formatCurrency(Math.abs(net))}`
+    const bullets: string[] = [
+      `Spent ${formatCurrency(expense)}, received ${formatCurrency(income)}. Net ${netFormatted}.`,
     ]
+
+    if (topCategory && expense > 0) {
+      const pct = ((topCategory.amount / expense) * 100).toFixed(1)
+      bullets.push(`${pct}% went to ${topCategory.category.toLowerCase()}.`)
+    }
+
+    if (refundTotal > 0) {
+      bullets.push(`Refunds added back ${formatCurrency(refundTotal)}.`)
+    }
+
+    if (delta !== null) {
+      bullets.push(`Expenses ${delta >= 0 ? 'rose' : 'fell'} ${Math.abs(delta).toFixed(0)}% versus previous month.`)
+    }
 
     return {
       month: monthKey,
@@ -1097,14 +1103,18 @@ export function buildMonthlyNarratives(transactions: Transaction[]) {
 }
 
 export function buildCashflowTimeline(transactions: Transaction[]) {
+  if (transactions.length < 20) {
+    return []
+  }
+
   const debitAmounts = transactions
     .filter((transaction) => transaction.type === 'debit')
     .map((transaction) => transaction.amount)
     .sort((first, second) => first - second)
   const spikeThreshold =
-    debitAmounts.length >= 4
+    debitAmounts.length >= 10
       ? debitAmounts[Math.max(Math.floor(debitAmounts.length * 0.9) - 1, 0)]
-      : Math.max(...debitAmounts, 0)
+      : 0
 
   const events: CashflowMarker[] = []
 
@@ -1448,6 +1458,23 @@ export function formatStatementDate(value: string) {
   }).format(date)
 }
 
+export function formatTransactionDateTime(dateStr: string, timeStr?: string): string {
+  const parsed = new Date(`${dateStr}T00:00:00`)
+  const dateFormatted = Number.isNaN(parsed.getTime())
+    ? dateStr
+    : new Intl.DateTimeFormat('en-IN', {
+        day: 'numeric',
+        month: 'short',
+      }).format(parsed)
+
+  if (!timeStr || !timeStr.trim()) {
+    return dateFormatted
+  }
+
+  const cleanTime = timeStr.trim().replace(/^,\s*/, '').replace(/^0/, '').toLowerCase()
+  return `${dateFormatted} · ${cleanTime}`
+}
+
 export function filterTransactionsByDateRange(
   transactions: Transaction[],
   startDate: string,
@@ -1704,7 +1731,79 @@ export function createDemoDocuments() {
     {
       fileName: 'phonepe-demo.pdf',
       text: `
-        Transaction Statement for +918604985020
+        Transaction Statement for +919876543210
+        Jan 01, 2026
+        10:30 AM
+        Received from TechCorp Systems Salary
+        Transaction ID : T2601011030001234567890
+        UTR No : 612345678901
+        Credited to XX2728
+        Credit
+        INR 85000.00
+
+        Jan 03, 2026
+        01:15 PM
+        Paid to Swiggy
+        Transaction ID : T2601031315002345678901
+        UTR No : 623456789012
+        Debited from XX2728
+        Debit
+        INR 450.00
+
+        Jan 05, 2026
+        11:20 AM
+        Paid to Airtel Broadband Bill Payment
+        Transaction ID : T2601051120003456789012
+        UTR No : 634567890123
+        Debited from XX2728
+        Debit
+        INR 999.00
+
+        Jan 07, 2026
+        08:45 PM
+        Paid to Zomato
+        Transaction ID : T2601072045004567890123
+        UTR No : 645678901234
+        Debited from XX2728
+        Debit
+        INR 620.00
+
+        Jan 10, 2026
+        07:10 AM
+        Paid to Spotify India
+        Transaction ID : T2601100710005678901234
+        UTR No : 656789012345
+        Debited from XX2728
+        Debit
+        INR 119.00
+
+        Jan 12, 2026
+        03:40 PM
+        Paid to Electricity Bill Payment
+        Transaction ID : T2601121540006789012345
+        UTR No : 667890123456
+        Debited from XX2728
+        Debit
+        INR 1850.00
+
+        Jan 14, 2026
+        09:15 PM
+        Paid to Blinkit
+        Transaction ID : T2601142115007890123456
+        UTR No : 678901234567
+        Debited from XX2728
+        Debit
+        INR 840.00
+
+        Jan 15, 2026
+        08:30 PM
+        Paid to Netflix
+        Transaction ID : T2601152030008901234567
+        UTR No : 689012345678
+        Debited from XX2728
+        Debit
+        INR 649.00
+
         Jan 16, 2026
         05:57 PM
         Paid to Credit Card Bill Payment
@@ -1712,7 +1811,7 @@ export function createDemoDocuments() {
         UTR No : 966222831963
         Debited from XX2728
         Debit
-        INR 8744.53
+        INR 12450.00
 
         Jan 17, 2026
         09:16 PM
@@ -1723,6 +1822,33 @@ export function createDemoDocuments() {
         Debit
         INR 579.00
 
+        Jan 19, 2026
+        02:10 PM
+        Paid to Amazon
+        Transaction ID : T2601191410009012345678
+        UTR No : 690123456789
+        Debited from XX2728
+        Debit
+        INR 2499.00
+
+        Jan 22, 2026
+        08:30 PM
+        Paid to Swiggy
+        Transaction ID : T2601222030000123456789
+        UTR No : 601234567890
+        Debited from XX2728
+        Debit
+        INR 320.00
+
+        Jan 24, 2026
+        04:15 PM
+        Paid to Uber
+        Transaction ID : T2601241615001234567890
+        UTR No : 612345678902
+        Debited from XX2728
+        Debit
+        INR 280.00
+
         Jan 27, 2026
         05:32 PM
         Bill paid - Credit Card
@@ -1731,25 +1857,211 @@ export function createDemoDocuments() {
         Debited from XX2728
         Debit
         INR 5154.00
+
+        Dec 01, 2025
+        10:30 AM
+        Received from TechCorp Systems Salary
+        Transaction ID : T2512011030001234567890
+        UTR No : 512345678901
+        Credited to XX2728
+        Credit
+        INR 85000.00
+
+        Dec 05, 2025
+        11:20 AM
+        Paid to Airtel Broadband Bill Payment
+        Transaction ID : T2512051120003456789012
+        UTR No : 534567890123
+        Debited from XX2728
+        Debit
+        INR 999.00
+
+        Dec 10, 2025
+        07:10 AM
+        Paid to Spotify India
+        Transaction ID : T2512100710005678901234
+        UTR No : 556789012345
+        Debited from XX2728
+        Debit
+        INR 119.00
+
+        Dec 12, 2025
+        03:40 PM
+        Paid to Electricity Bill Payment
+        Transaction ID : T2512121540006789012345
+        UTR No : 567890123456
+        Debited from XX2728
+        Debit
+        INR 1720.00
+
+        Dec 15, 2025
+        08:30 PM
+        Paid to Netflix
+        Transaction ID : T2512152030008901234567
+        UTR No : 589012345678
+        Debited from XX2728
+        Debit
+        INR 649.00
+
+        Dec 18, 2025
+        06:15 PM
+        Paid to Flipkart
+        Transaction ID : T2512181815009012345678
+        UTR No : 590123456789
+        Debited from XX2728
+        Debit
+        INR 1540.00
+
+        Dec 20, 2025
+        08:45 PM
+        Paid to Zomato
+        Transaction ID : T2512202045000123456789
+        UTR No : 501234567890
+        Debited from XX2728
+        Debit
+        INR 580.00
+
+        Dec 26, 2025
+        05:30 PM
+        Paid to Credit Card Bill Payment
+        Transaction ID : T2512261730001234567890
+        UTR No : 512345678902
+        Debited from XX2728
+        Debit
+        INR 9800.00
       `,
     },
     {
       fileName: 'gpay-demo.pdf',
       text: `
         Google Pay
+        04 Jan, 2026
+        09:20 AM
+        Paid to Uber
+        UPI Transaction ID: 630495733101
+        Paid by ICICI Bank 1411
+        Debit
+        ₹210.00
+
+        08 Jan, 2026
+        06:45 PM
+        Paid to Starbucks
+        UPI Transaction ID: 630895733102
+        Paid by ICICI Bank 1411
+        Debit
+        ₹380.00
+
         09 Jan, 2026
         04:29 PM
         Received from Mo. Bilal
         UPI Transaction ID: 637589339416
         Paid to HDFC Bank 2728
-        ₹110
+        Credit
+        ₹1200.00
+
+        11 Jan, 2026
+        07:15 PM
+        Paid to Amazon
+        UPI Transaction ID: 631195733103
+        Paid by ICICI Bank 1411
+        Debit
+        ₹1299.00
+
+        13 Jan, 2026
+        02:30 PM
+        Received from Amazon Refund
+        UPI Transaction ID: 631395733104
+        Paid to HDFC Bank 2728
+        Credit
+        ₹499.00
+
+        15 Jan, 2026
+        08:15 PM
+        Paid to Ola
+        UPI Transaction ID: 631595733105
+        Paid by ICICI Bank 1411
+        Debit
+        ₹260.00
 
         17 Jan, 2026
         08:46 PM
         Paid to Mohd Ayan
         UPI Transaction ID: 638395733138
         Paid by ICICI Bank 1411
-        ₹50
+        Debit
+        ₹500.00
+
+        20 Jan, 2026
+        11:45 AM
+        Paid to Blinkit
+        UPI Transaction ID: 632095733106
+        Paid by ICICI Bank 1411
+        Debit
+        ₹650.00
+
+        23 Jan, 2026
+        04:30 PM
+        Paid to Apollo Pharmacy
+        UPI Transaction ID: 632395733107
+        Paid by ICICI Bank 1411
+        Debit
+        ₹420.00
+
+        25 Jan, 2026
+        01:10 PM
+        Paid to Zomato
+        UPI Transaction ID: 632595733108
+        Paid by ICICI Bank 1411
+        Debit
+        ₹410.00
+
+        28 Jan, 2026
+        07:40 PM
+        Paid to Uber
+        UPI Transaction ID: 632895733109
+        Paid by ICICI Bank 1411
+        Debit
+        ₹340.00
+
+        08 Dec, 2025
+        07:20 PM
+        Paid to Swiggy
+        UPI Transaction ID: 530895733110
+        Paid by ICICI Bank 1411
+        Debit
+        ₹520.00
+
+        14 Dec, 2025
+        03:15 PM
+        Paid to Amazon
+        UPI Transaction ID: 531495733111
+        Paid by ICICI Bank 1411
+        Debit
+        ₹3450.00
+
+        19 Dec, 2025
+        08:30 PM
+        Paid to Mohd Ayan
+        UPI Transaction ID: 531995733112
+        Paid by ICICI Bank 1411
+        Debit
+        ₹500.00
+
+        24 Dec, 2025
+        06:00 PM
+        Received from Mo. Bilal
+        UPI Transaction ID: 532495733113
+        Paid to HDFC Bank 2728
+        Credit
+        ₹800.00
+
+        28 Dec, 2025
+        09:10 AM
+        Paid to Uber
+        UPI Transaction ID: 532895733114
+        Paid by ICICI Bank 1411
+        Debit
+        ₹230.00
       `,
     },
   ]

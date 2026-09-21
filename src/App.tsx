@@ -1,6 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import './App.css'
+import './theme.css'
 import { DEFAULT_RULES, type CategoryRule, type SavingsGoal, type Transaction, type WorkspaceName } from './lib/types'
 import {
   analyzeStatementHealth,
@@ -37,6 +38,7 @@ import { GoalTracker } from './components/analyzer/GoalTracker'
 import { HealthCheckPanel } from './components/analyzer/HealthCheckPanel'
 import { Topbar, type ViewMode } from './components/layout/Topbar'
 import { Dropzone } from './components/ui/Dropzone'
+import { FileUp } from 'lucide-react'
 
 type ParsedDocument = {
   fileName: string
@@ -1109,11 +1111,11 @@ function App() {
   }
 
   return (
-    <div className={`page-shell ${view === 'home' ? 'home-view' : 'tool-view'}`}>
+    <div className={`site-shell ${view === 'home' ? 'home-view' : 'tool-view'}`}>
       <Topbar
         view={view}
         setView={setView}
-        onUploadClick={handleUploadClick}
+        onUploadClick={() => pdfInputRef.current?.click()}
       />
 
       <input
@@ -1122,6 +1124,7 @@ function App() {
         type="file"
         accept="application/pdf"
         multiple
+        style={{ display: 'none' }}
         onChange={(event) => {
           handleFiles(event.target.files)
           event.target.value = ''
@@ -1133,622 +1136,254 @@ function App() {
         className="hidden-input"
         type="file"
         accept=".csv,text/csv"
+        style={{ display: 'none' }}
         onChange={(event) => {
           void handleCsvImport(event.target.files)
           event.target.value = ''
         }}
       />
 
-      <AnimatePresence>
-        {toastMessage ? (
-          <motion.div
-            className="toast-stack"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 12 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="toast toast-success">
-              <strong>Analysis ready</strong>
-              <span>{toastMessage}</span>
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
+      {toastMessage ? (
+        <div className="toast-stack">
+          <div className="toast toast-success">
+            {toastMessage}
+          </div>
+        </div>
+      ) : null}
 
-      <AnimatePresence>
-        {showExportSummary && filteredTransactions.length > 0 ? (
-          <motion.div
-            className="export-modal-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="export-modal panel"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 12 }}
-              transition={{ duration: 0.18 }}
-            >
-              <div className="panel-header">
-                <div>
-                  <p className="panel-kicker">Export summary</p>
-                  <h2>Review what goes into the CSV</h2>
-                </div>
-              </div>
-
-              <div className="export-summary-grid">
-                <div className="export-summary-item">
-                  <span>Workspace</span>
-                  <strong>{currentWorkspace}</strong>
-                </div>
-                <div className="export-summary-item">
-                  <span>Rows</span>
-                  <strong>{exportPreview.rowCount}</strong>
-                </div>
-                <div className="export-summary-item">
-                  <span>Date window</span>
-                  <strong>{exportPreview.dateWindow}</strong>
-                </div>
-                <div className="export-summary-item">
-                  <span>File name</span>
-                  <strong>{exportPreview.fileName}</strong>
-                </div>
-              </div>
-
-              <div className="export-receipt">
-                <div className="receipt-row">
-                  <span>Debit rows</span>
-                  <strong>{exportPreview.debitCount}</strong>
-                </div>
-                <div className="receipt-row">
-                  <span>Credit rows</span>
-                  <strong>{exportPreview.creditCount}</strong>
-                </div>
-                <div className="receipt-row">
-                  <span>Total debit</span>
-                  <strong>{formatCurrency(exportPreview.totalDebit)}</strong>
-                </div>
-                <div className="receipt-row">
-                  <span>Total credit</span>
-                  <strong>{formatCurrency(exportPreview.totalCredit)}</strong>
-                </div>
-              </div>
-
-              <div className="empty-preview-list export-preview-chips">
-                {exportPreview.sources.map((source) => (
-                  <span key={source}>{source}</span>
-                ))}
-                {exportPreview.categoriesInExport.slice(0, 4).map((category) => (
-                  <span key={category}>{category}</span>
-                ))}
-              </div>
-
-              <div className="export-modal-actions">
-                <button className="button button-secondary" onClick={() => setShowExportSummary(false)}>
-                  Cancel
-                </button>
-                <button className="button button-primary" onClick={handleExport}>
-                  Download CSV
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-
-      <AnimatePresence mode="wait">
+      <div className="page-shell">
         {view === 'home' ? (
-          <motion.div
-            key="home"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            <HomeView setView={setView} loadDemo={loadDemo} />
-          </motion.div>
+          <HomeView
+            onUpload={() => pdfInputRef.current?.click()}
+            loadDemo={loadDemo}
+          />
         ) : (
-          <motion.div
-            key="tool"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="app-shell"
-          >
+          <div className="app-shell">
             {!hasTransactions ? (
-              <section className="hero-panel">
-                <div className="hero-copy">
-                  <p className="eyebrow">Get started</p>
-                  <h1>Start with a private statement batch.</h1>
-                  <p className="hero-text">
-                    Upload PDFs or import a CSV to start a private workspace.
-                  </p>
-                  <div className="hero-actions hero-actions-primary">
-                    <button className="button button-primary button-hero" onClick={handleUploadClick}>
-                      Analyze PDF statements
+              <div 
+                className={`empty-workspace-dropzone ${isDragging ? 'dragging' : ''}`}
+                onDragOver={(e) => {
+                  e.preventDefault()
+                  setIsDragging(true)
+                }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  setIsDragging(false)
+                  if (e.dataTransfer.files?.length) {
+                    handleFiles(e.dataTransfer.files)
+                  }
+                }}
+              >
+                <div className="empty-dropzone-inner">
+                  <FileUp size={36} className="empty-dropzone-icon" />
+                  <h3 className="empty-dropzone-title">No statements yet</h3>
+                  <p className="empty-dropzone-sub">Drop a PhonePe or Google Pay PDF here, or</p>
+                  <div className="empty-dropzone-actions">
+                    <button className="button button-primary" onClick={() => pdfInputRef.current?.click()}>
+                      Choose file
                     </button>
-                    <button className="button button-secondary" onClick={handleImportCsvClick}>
-                      Import CSV ledger
-                    </button>
-                  </div>
-                  <div className="hero-actions hero-actions-secondary">
                     <button className="button button-tertiary" onClick={loadDemo}>
-                      Explore sample data
+                      Try sample data →
                     </button>
                   </div>
-                  <div className="hero-inline-notes">
-                    <span>Up to {MAX_PDF_FILES} PDFs per batch</span>
-                    <span>PhonePe + GPay</span>
-                    <span>Local only</span>
-                  </div>
-                  <div className="status-row">
-                    <span className={`status-dot ${isParsing ? 'live' : ''}`}></span>
-                    <span>{displayStatus}</span>
-                  </div>
-                  {displayError ? (
-                    <div className="error-banner">
-                      <strong>Something needs attention</strong>
-                      <p>{displayError}</p>
-                    </div>
-                  ) : null}
-                </div>
-
-                <Dropzone
-                  isDragging={isDragging}
-                  setIsDragging={setIsDragging}
-                  handleFiles={handleFiles}
-                  maxFiles={MAX_PDF_FILES}
-                />
-              </section>
-            ) : (
-              <section className="workspace-header panel">
-                <div className="workspace-header-copy">
-                  <p className="panel-kicker">Analyzer workspace</p>
-                  <h1>{activeSectionMeta.title}</h1>
-                  <p className="hero-text">{activeSectionMeta.description}</p>
-                  <div className="workspace-header-highlights">
-                    {activeSectionMeta.highlights.map((highlight) => (
-                      <span key={highlight}>{highlight}</span>
-                    ))}
-                  </div>
-                  <div className="status-row workspace-status-row">
-                    <span className={`status-dot ${isParsing ? 'live' : ''}`}></span>
-                    <span>{displayStatus}</span>
-                  </div>
-                  {displayError ? (
-                    <div className="error-banner">
-                      <strong>Something needs attention</strong>
-                      <p>{displayError}</p>
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="workspace-header-actions">
-                  <div className="workspace-action-card">
-                    <span className="workspace-action-label">Quick actions</span>
-                    <div className="workspace-action-grid">
-                      <button className="button button-primary" onClick={handleUploadClick}>
-                        Add PDF batch
-                      </button>
-                      <button className="button button-secondary" onClick={handleImportCsvClick}>
-                        Import CSV
-                      </button>
-                      <button
-                        className="button button-secondary"
-                        onClick={() => setShowExportSummary(true)}
-                        disabled={filteredTransactions.length === 0}
-                      >
-                        Export CSV
-                      </button>
-                      <button className="button button-tertiary" onClick={() => jumpToSection('rules')}>
-                        {reviewQueueTransactions.length > 0 ? 'Open review queue' : 'Review categorization'}
-                      </button>
-                    </div>
-                    <p className="workspace-action-note">
-                      Import, export, or jump into review from here.
-                    </p>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {isParsing ? (
-              <section className="loading-shell">
-                <div className="panel loading-panel">
-                  <div className="loading-copy">
-                    <p className="panel-kicker">Preparing workspace</p>
-                    <h2>Analyzing your statements</h2>
-                    <p className="empty-text">
-                      Extracting rows and refreshing your workspace locally.
-                    </p>
-                  </div>
-                  <div className="loading-metric-grid">
-                    {Array.from({ length: 4 }).map((_, index) => (
-                      <div className="loading-card" key={index}>
-                        <span className="skeleton-line short"></span>
-                        <span className="skeleton-line medium"></span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="loading-chart-grid">
-                    <div className="loading-chart-card">
-                      <span className="skeleton-line short"></span>
-                      <div className="chart-skeleton donut"></div>
-                    </div>
-                    <div className="loading-chart-card">
-                      <span className="skeleton-line short"></span>
-                      <div className="chart-skeleton bars">
-                        {Array.from({ length: 6 }).map((_, index) => (
-                          <i key={index}></i>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            ) : null}
-
-            {!isParsing && !hasTransactions ? (
-              <section className="workspace-onboarding">
-                <div className="panel onboarding-intro">
-                  <p className="panel-kicker">Onboarding</p>
-                  <h2>Your workspace is ready for the first statement.</h2>
-                  <p className="empty-text">
-                    Start with PDFs or import a previous CSV.
-                  </p>
-                  <div className="empty-preview-list">
-                    <span>Category charts</span>
-                    <span>Ledger search</span>
-                    <span>Recurring payments</span>
-                  </div>
-                  <div className="onboarding-actions">
-                    <button className="button button-primary button-hero" onClick={handleUploadClick}>
-                      Upload your first PDFs
-                    </button>
-                    <button className="button button-secondary" onClick={handleImportCsvClick}>
-                      Import previous CSV
-                    </button>
-                  </div>
-                </div>
-
-                <div className="onboarding-grid">
-                  <article className="panel onboarding-card">
-                    <p className="panel-kicker">Step 1</p>
-                    <h3>Bring in statement files</h3>
-                    <p className="empty-text">
-                      Drop up to {MAX_PDF_FILES} PDFs at once.
-                    </p>
-                  </article>
-                  <article className="panel onboarding-card">
-                    <p className="panel-kicker">Step 2</p>
-                    <h3>Review the unified ledger</h3>
-                    <p className="empty-text">
-                      Review rows, trends, and flagged items.
-                    </p>
-                  </article>
-                  <article className="panel onboarding-card">
-                    <p className="panel-kicker">Step 3</p>
-                    <h3>Refine categories and repeat payments</h3>
-                    <p className="empty-text">
-                      Save rules, spot repeats, and plan budgets.
-                    </p>
-                  </article>
-                </div>
-              </section>
-            ) : null}
-
-            {!isParsing && hasTransactions ? (
-              <div className="analyzer-workspace-shell">
-                <aside className="desktop-section-nav panel">
-                  <div className="desktop-section-nav-head">
-                    <p className="panel-kicker">Workspace sections</p>
-                    <h2>Move through one job at a time.</h2>
-                    <p className="empty-text">
-                      Keep one task in focus at a time.
-                    </p>
-                  </div>
-
-                  <nav className="desktop-section-list" aria-label="Analyzer workspace sections">
-                    {analyzerSections.map((section) => (
-                      <button
-                        key={section.id}
-                        className={`desktop-section-link ${activeAnalyzerSection === section.id ? 'active' : ''}`}
-                        onClick={() => jumpToSection(section.id)}
-                      >
-                        <div className="desktop-section-link-top">
-                          <span>{section.label}</span>
-                          <strong>{section.meta}</strong>
-                        </div>
-                      </button>
-                    ))}
-                  </nav>
-
-                  <div className="desktop-section-sidebar-note">
-                    <span className="meta-chip neutral">{exportPreview.dateWindow}</span>
-                  </div>
-                </aside>
-
-                <div className="analyzer-workspace-main">
-                  <MobileSectionNav activeSection={activeAnalyzerSection} onJump={jumpToSection} />
-
-                  <section className="workspace-section-intro panel">
-                    <div>
-                      <p className="panel-kicker">{activeSectionMeta.label}</p>
-                      <h2>{activeSectionMeta.title}</h2>
-                    </div>
-                    <div className="workspace-section-intro-copy">
-                      <div className="workspace-section-highlights">
-                        {activeSectionMeta.highlights.map((highlight) => (
-                          <span key={highlight}>{highlight}</span>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={activeAnalyzerSection}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                      transition={{ duration: 0.18 }}
-                      className="analyzer-section-stage"
-                    >
-                      <div
-                        ref={overviewSectionRef}
-                        data-section="overview"
-                        data-active={activeAnalyzerSection === 'overview'}
-                        className="analyzer-section-stack analyzer-tab-panel"
-                      >
-                        <section className="insight-strip">
-                          <article className="panel insight-card">
-                            <span>Needs review</span>
-                            <strong>{reviewQueueTransactions.length}</strong>
-                            <p>Confidence checks and uncategorized rows waiting for approval.</p>
-                          </article>
-                          <article className="panel insight-card">
-                            <span>Duplicates merged</span>
-                            <strong>{duplicateCount}</strong>
-                            <p>Overlapping imports are collapsed before they reach analytics.</p>
-                          </article>
-                          <article className="panel insight-card">
-                            <span>Recurring payments</span>
-                            <strong>{recurringInsights.length}</strong>
-                            <p>Likely subscriptions, EMIs, and repeat charges detected locally.</p>
-                          </article>
-                        </section>
-
-                        <MetricGrid
-                          statementsCount={sourceCount}
-                          transactionCount={summary.transactionCount}
-                          totalIncome={summary.totalIncome}
-                          totalExpense={summary.totalExpense}
-                          net={summary.net}
-                          onCardClick={handleMetricCardClick}
-                        />
-
-                        <section className="summary-insights-grid">
-                          <LocalSummaryPanel summaries={monthlyNarratives} />
-                          <HealthCheckPanel health={statementHealth} />
-                        </section>
-
-                        <DashboardGrid
-                          categories={categories}
-                          totalExpense={dashboardTotalExpense}
-                          trendMode={trendMode}
-                          setTrendMode={setTrendMode}
-                          trend={trend}
-                          trendPage={currentTrendPage}
-                          trendPageSize={trendPageSize}
-                          setTrendPage={setTrendPage}
-                          trendPageCount={trendPageCount}
-                          pagedTrend={pagedTrend}
-                          dashboardSource={dashboardSource}
-                          setDashboardSource={setDashboardSource}
-                          sourceOptions={sourceOptions}
-                          onCategorySelect={handleCategoryDrilldown}
-                          onTrendSelect={handleTrendDrilldown}
-                        />
-
-                        <VendorList vendors={vendors} onVendorSelect={handleVendorDrilldown} />
-                        <RecurringPanel recurringInsights={recurringInsights} onRecurringSelect={handleVendorDrilldown} />
-                        <CashflowTimeline events={cashflowTimeline} onSelectEvent={handleTimelineEventDrilldown} />
-                      </div>
-
-                      <div
-                        ref={budgetsSectionRef}
-                        data-section="budgets"
-                        data-active={activeAnalyzerSection === 'budgets'}
-                        className="analyzer-section-stack analyzer-tab-panel"
-                      >
-                        <section className="control-grid">
-                          <div className="panel">
-                            <div className="panel-header">
-                              <div>
-                                <p className="panel-kicker">Date range</p>
-                                <h2>Custom analysis window</h2>
-                              </div>
-                            </div>
-                            <div className="filters">
-                              <select value={rangePreset} onChange={(event) => setRangePreset(event.target.value as RangePreset)}>
-                                <option value="all">All available data</option>
-                                <option value="last90">Last 90 Days</option>
-                                <option value="thisMonth">Current Month</option>
-                                <option value="financialYear">Previous Financial Year</option>
-                                <option value="custom">Custom Range</option>
-                              </select>
-                              <input
-                                type="date"
-                                value={activeStartDate}
-                                onChange={(event) => {
-                                  setRangePreset('custom')
-                                  setCustomStartDate(event.target.value)
-                                }}
-                              />
-                              <input
-                                type="date"
-                                value={activeEndDate}
-                                onChange={(event) => {
-                                  setRangePreset('custom')
-                                  setCustomEndDate(event.target.value)
-                                }}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="panel">
-                            <div className="panel-header">
-                              <div>
-                                <p className="panel-kicker">Budgeting</p>
-                                <h2>Monthly limits & goals</h2>
-                              </div>
-                            </div>
-                            <div className="rules-form">
-                              <select value={budgetCategory} onChange={(event) => setBudgetCategory(event.target.value)}>
-                                <option value="">Choose category</option>
-                                {availableCategories.map((category) => (
-                                  <option key={category} value={category}>
-                                    {category}
-                                  </option>
-                                ))}
-                              </select>
-                              <input
-                                value={budgetAmount}
-                                onChange={(event) => setBudgetAmount(event.target.value)}
-                                placeholder="Monthly budget amount"
-                                inputMode="decimal"
-                              />
-                              <button className="button button-primary compact" onClick={addBudget}>
-                                Save budget
-                              </button>
-                            </div>
-                            <div className="budget-list">
-                              {budgetProgress.length === 0 ? (
-                                <div className="empty-state-block">
-                                  <p className="empty-text">Set a budget to compare spending against a limit.</p>
-                                  <div className="empty-preview-list">
-                                    <span>Groceries target</span>
-                                    <span>Travel cap</span>
-                                  </div>
-                                </div>
-                              ) : (
-                                budgetProgress.map((budget) => (
-                                  <div className="budget-item" key={budget.category}>
-                                    <div className="budget-head">
-                                      <div>
-                                        <strong>{budget.category}</strong>
-                                        <span>
-                                          {formatCurrency(budget.spent)} of {formatCurrency(budget.amount)}
-                                        </span>
-                                      </div>
-                                      <button
-                                        className="button button-tertiary compact"
-                                        onClick={() => removeBudget(budget.category)}
-                                      >
-                                        Remove
-                                      </button>
-                                    </div>
-                                    <div className="budget-track">
-                                      <div
-                                        className={`budget-fill ${budget.exceeded ? 'exceeded' : ''}`}
-                                        style={{ width: `${Math.min(budget.ratio * 100, 100)}%` }}
-                                      ></div>
-                                    </div>
-                                    <span className={`budget-note ${budget.exceeded ? 'exceeded' : ''}`}>
-                                      {budget.exceeded
-                                        ? `${formatCurrency(Math.abs(budget.remaining))} over budget`
-                                        : `${formatCurrency(budget.remaining)} remaining`}
-                                    </span>
-                                  </div>
-                                ))
-                              )}
-                            </div>
-                          </div>
-                        </section>
-
-                        <GoalTracker
-                          key={`${currentWorkspace}-${savingsGoal?.name ?? 'goal'}`}
-                          goal={savingsGoal}
-                          forecast={savingsForecast}
-                          onSaveGoal={saveSavingsGoal}
-                          onClearGoal={clearSavingsGoal}
-                        />
-                      </div>
-
-                      <div
-                        ref={rulesSectionRef}
-                        data-section="rules"
-                        data-active={activeAnalyzerSection === 'rules'}
-                        className="analyzer-section-stack analyzer-tab-panel"
-                      >
-                        <ReviewQueue
-                          transactions={reviewQueueTransactions}
-                          duplicateGroups={duplicateGroups}
-                          availableCategories={availableCategories}
-                          onApplyCategoryRule={applyReviewCategoryRule}
-                          onMarkReviewed={markTransactionReviewed}
-                        />
-
-                        <RuleManager
-                          rules={rules}
-                          vendorOptions={vendorOptions}
-                          availableCategories={availableCategories}
-                          pendingAssignments={pendingAssignments}
-                          ruleVendor={ruleVendor}
-                          newKeyword={newKeyword}
-                          newCategory={newCategory}
-                          setRuleVendor={setRuleVendor}
-                          setNewKeyword={setNewKeyword}
-                          setNewCategory={setNewCategory}
-                          addPendingAssignment={addPendingAssignment}
-                          addRule={addRule}
-                          regenerateCategories={regenerateCategories}
-                          removeRule={removeRule}
-                        />
-                      </div>
-
-                      <div
-                        ref={ledgerSectionRef}
-                        data-section="ledger"
-                        data-active={activeAnalyzerSection === 'ledger'}
-                        className="analyzer-section-stack analyzer-tab-panel"
-                      >
-                        <TransactionTable
-                          filteredTransactions={filteredTransactions}
-                          selectedTransactions={selectedTransactions}
-                          selectedTransactionIds={selectedTransactionIds}
-                          selectedTransactionsTotal={selectedTransactionsTotal}
-                          setSelectedTransactionIds={setSelectedTransactionIds}
-                          toggleSelectedTransaction={toggleSelectedTransaction}
-                          search={search}
-                          setSearch={setSearch}
-                          categoryFilter={categoryFilter}
-                          setCategoryFilter={setCategoryFilter}
-                          sourceFilter={sourceFilter}
-                          setSourceFilter={setSourceFilter}
-                          typeFilter={typeFilter}
-                          setTypeFilter={setTypeFilter}
-                          dateFilter={dateFilter}
-                          setDateFilter={setDateFilter}
-                          categoryOptions={categoryOptions}
-                          sourceOptions={sourceOptions}
-                          availableCategories={availableCategories}
-                          onInlineApplyRule={applyReviewCategoryRule}
-                          queryInsights={ledgerQueryInsights}
-                          onApplyQueryExample={applyQueryExample}
-                        />
-                      </div>
-                    </motion.div>
-                  </AnimatePresence>
                 </div>
               </div>
-            ) : null}
-          </motion.div>
+            ) : (
+              <div className="analyzer-workspace-shell">
+                <div className="toolbar-row">
+                  <div className="toolbar-left">
+                    <select 
+                      className="workspace-select"
+                      value={currentWorkspace} 
+                      onChange={(e) => setCurrentWorkspace(e.target.value as WorkspaceName)}
+                      aria-label="Switch workspace"
+                    >
+                      <option value="Personal">Personal</option>
+                      <option value="Business">Business</option>
+                      <option value="Family">Family</option>
+                    </select>
+                    <select 
+                      className="date-range-select"
+                      value={rangePreset} 
+                      onChange={(e) => setRangePreset(e.target.value as RangePreset)}
+                    >
+                      <option value="all">All time</option>
+                      <option value="thisMonth">This month</option>
+                      <option value="last90">Last 90 days</option>
+                      <option value="financialYear">Financial year</option>
+                      <option value="custom">Custom</option>
+                    </select>
+                  </div>
+                  <div className="toolbar-right">
+                    <select 
+                      className="source-select"
+                      value={dashboardSource} 
+                      onChange={(e) => setDashboardSource(e.target.value)}
+                    >
+                      <option value="All">All sources</option>
+                      {sourceOptions.filter(o => o !== 'All').map(o => (
+                        <option key={o} value={o}>{o}</option>
+                      ))}
+                    </select>
+                    <div className="dropdown">
+                      <button className="button button-secondary compact">Import ▾</button>
+                      <div className="dropdown-menu">
+                        <button onClick={() => pdfInputRef.current?.click()}>PDF</button>
+                        <button onClick={() => csvInputRef.current?.click()}>CSV</button>
+                      </div>
+                    </div>
+                    <button className="button button-secondary compact" onClick={handleExport}>
+                      Export CSV
+                    </button>
+                  </div>
+                </div>
+
+                <div className="analyzer-tabs">
+                  <button className={`tab-link ${activeAnalyzerSection === 'overview' ? 'active' : ''}`} onClick={() => setActiveAnalyzerSection('overview')}>Overview</button>
+                  <button className={`tab-link ${activeAnalyzerSection === 'ledger' ? 'active' : ''}`} onClick={() => setActiveAnalyzerSection('ledger')}>Transactions</button>
+                  <button className={`tab-link ${activeAnalyzerSection === 'budgets' ? 'active' : ''}`} onClick={() => setActiveAnalyzerSection('budgets')}>Budgets</button>
+                  <button className={`tab-link ${activeAnalyzerSection === 'rules' ? 'active' : ''}`} onClick={() => setActiveAnalyzerSection('rules')}>Rules</button>
+                </div>
+
+                {reviewQueueTransactions.length > 0 && (
+                  <div className="review-banner">
+                    <span>
+                      {reviewQueueTransactions.length} transaction{reviewQueueTransactions.length === 1 ? ' needs' : 's need'} a category.
+                    </span>
+                    <button className="button button-tertiary compact text-link" onClick={() => {
+                      setCategoryFilter('Uncategorized')
+                      setActiveAnalyzerSection('ledger')
+                    }}>
+                      Review →
+                    </button>
+                  </div>
+                )}
+
+                {activeAnalyzerSection === 'overview' && (
+                  <>
+                    <MetricGrid
+                      statementsCount={sourceCount}
+                      transactionCount={summary.transactionCount}
+                      totalIncome={summary.totalIncome}
+                      totalExpense={summary.totalExpense}
+                      net={summary.net}
+                      recurringCount={recurringInsights.length}
+                    />
+
+                    <DashboardGrid
+                      categories={categories}
+                      totalExpense={dashboardTotalExpense}
+                      trendMode={trendMode}
+                      setTrendMode={setTrendMode}
+                      trend={trend}
+                      onCategorySelect={(cat) => {
+                        setCategoryFilter(cat)
+                        setActiveAnalyzerSection('ledger')
+                      }}
+                      onTrendSelect={(label, mode) => {
+                        setDateFilter(mode === 'date' ? label : '')
+                        setActiveAnalyzerSection('ledger')
+                      }}
+                    />
+
+                    <VendorList
+                      vendors={vendors}
+                      totalExpense={summary.totalExpense}
+                      onVendorSelect={(vendor) => {
+                        setSearch(vendor)
+                        setActiveAnalyzerSection('ledger')
+                      }}
+                    />
+                    
+                    <LocalSummaryPanel summaries={monthlyNarratives} />
+                    {cashflowTimeline.length > 0 && (
+                      <CashflowTimeline
+                        events={cashflowTimeline}
+                        onSelectEvent={() => {
+                          setActiveAnalyzerSection('ledger')
+                        }}
+                      />
+                    )}
+                    <RecurringPanel 
+                      recurringInsights={recurringInsights}
+                      onRecurringSelect={(vendor) => {
+                        setSearch(vendor)
+                        setActiveAnalyzerSection('ledger')
+                      }}
+                    />
+                    <HealthCheckPanel health={statementHealth} />
+                  </>
+                )}
+
+                {activeAnalyzerSection === 'ledger' && (
+                  <TransactionTable
+                    filteredTransactions={filteredTransactions}
+                    selectedTransactions={selectedTransactions}
+                    selectedTransactionIds={selectedTransactionIds}
+                    selectedTransactionsTotal={selectedTransactionsTotal}
+                    setSelectedTransactionIds={setSelectedTransactionIds}
+                    toggleSelectedTransaction={toggleSelectedTransaction}
+                    search={search}
+                    setSearch={setSearch}
+                    categoryFilter={categoryFilter}
+                    setCategoryFilter={setCategoryFilter}
+                    sourceFilter={sourceFilter}
+                    setSourceFilter={setSourceFilter}
+                    typeFilter={typeFilter}
+                    setTypeFilter={setTypeFilter}
+                    dateFilter={dateFilter}
+                    setDateFilter={setDateFilter}
+                    categoryOptions={categoryOptions}
+                    sourceOptions={sourceOptions}
+                    availableCategories={availableCategories}
+                    onInlineApplyRule={applyReviewCategoryRule}
+                    queryInsights={ledgerQueryInsights}
+                    onApplyQueryExample={applyQueryExample}
+                  />
+                )}
+
+                {activeAnalyzerSection === 'budgets' && (
+                  <GoalTracker
+                    goal={savingsGoal}
+                    forecast={savingsForecast}
+                    onSaveGoal={saveSavingsGoal}
+                    onClearGoal={clearSavingsGoal}
+                  />
+                )}
+
+                {activeAnalyzerSection === 'rules' && (
+                  <>
+                    <ReviewQueue
+                      transactions={reviewQueueTransactions}
+                      duplicateGroups={duplicateGroups}
+                      availableCategories={availableCategories}
+                      onApplyCategoryRule={applyReviewCategoryRule}
+                      onMarkReviewed={markTransactionReviewed}
+                    />
+                    <RuleManager
+                      rules={rules}
+                      pendingAssignments={pendingAssignments}
+                      newKeyword={newKeyword}
+                      setNewKeyword={setNewKeyword}
+                      newCategory={newCategory}
+                      setNewCategory={setNewCategory}
+                      ruleVendor={ruleVendor}
+                      setRuleVendor={setRuleVendor}
+                      vendorOptions={vendorOptions}
+                      availableCategories={availableCategories}
+                      addPendingAssignment={addPendingAssignment}
+                      addRule={addRule}
+                      regenerateCategories={regenerateCategories}
+                      removeRule={removeRule}
+                    />
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         )}
-      </AnimatePresence>
+      </div>
     </div>
   )
 }
