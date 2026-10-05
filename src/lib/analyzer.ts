@@ -184,13 +184,13 @@ const ledgerCsvHeader = [
   'account_hint',
 ] as const
 const smartCategoryKnowledge = [
-  { category: 'Food & Dining', keywords: ['restaurant', 'cafe', 'swiggy', 'zomato', 'eatclub', 'biryani', 'pizza'] },
-  { category: 'Bills & Utilities', keywords: ['electricity', 'vodafone', 'jio', 'airtel', 'bill', 'broadband', 'recharge'] },
+  { category: 'Food & Dining', keywords: ['restaurant', 'cafe', 'swiggy', 'zomato', 'eatclub', 'biryani', 'pizza', 'chipotle', 'dominos', 'starbucks', 'mcdonalds', 'doordash', 'whole foods'] },
+  { category: 'Bills & Utilities', keywords: ['electricity', 'vodafone', 'jio', 'airtel', 'verizon', 'comcast', 'bill', 'broadband', 'recharge'] },
   { category: 'Credit Card Payments', keywords: ['credit card', 'card bill', 'bill payment', 'cc payment'] },
-  { category: 'Fuel & Travel', keywords: ['uber', 'ola', 'fuel', 'petrol', 'diesel', 'metro', 'irctc'] },
-  { category: 'Shopping', keywords: ['amazon', 'flipkart', 'myntra', 'meesho', 'store', 'mart'] },
+  { category: 'Fuel & Travel', keywords: ['uber', 'ola', 'lyft', 'fuel', 'petrol', 'diesel', 'metro', 'irctc'] },
+  { category: 'Shopping', keywords: ['amazon', 'flipkart', 'myntra', 'meesho', 'walmart', 'target', 'ikea', 'store', 'mart'] },
   { category: 'Entertainment', keywords: ['netflix', 'spotify', 'bookmyshow', 'movie', 'prime'] },
-  { category: 'Healthcare', keywords: ['apollo', 'hospital', 'clinic', 'pharmacy', 'medical'] },
+  { category: 'Healthcare', keywords: ['apollo', 'cvs', 'walgreens', 'hospital', 'clinic', 'pharmacy', 'medical'] },
   { category: 'Income', keywords: ['salary', 'refund', 'credited', 'bonus'] },
 ]
 const categoryAliasMap: Record<string, string[]> = {
@@ -1734,7 +1734,7 @@ export function createDemoDocuments() {
         Transaction Statement for +919876543210
         Jan 01, 2026
         10:30 AM
-        Received from TechCorp Systems Salary
+        Received from Northwind Systems Salary
         Transaction ID : T2601011030001234567890
         UTR No : 612345678901
         Credited to XX2728
@@ -1743,7 +1743,7 @@ export function createDemoDocuments() {
 
         Jan 03, 2026
         01:15 PM
-        Paid to Swiggy
+        Paid to Chipotle
         Transaction ID : T2601031315002345678901
         UTR No : 623456789012
         Debited from XX2728
@@ -1752,7 +1752,7 @@ export function createDemoDocuments() {
 
         Jan 05, 2026
         11:20 AM
-        Paid to Airtel Broadband Bill Payment
+        Paid to Comcast Broadband Bill Payment
         Transaction ID : T2601051120003456789012
         UTR No : 634567890123
         Debited from XX2728
@@ -1761,7 +1761,7 @@ export function createDemoDocuments() {
 
         Jan 07, 2026
         08:45 PM
-        Paid to Zomato
+        Paid to Dominos Pizza
         Transaction ID : T2601072045004567890123
         UTR No : 645678901234
         Debited from XX2728
@@ -1770,7 +1770,7 @@ export function createDemoDocuments() {
 
         Jan 10, 2026
         07:10 AM
-        Paid to Spotify India
+        Paid to Spotify
         Transaction ID : T2601100710005678901234
         UTR No : 656789012345
         Debited from XX2728
@@ -1788,7 +1788,7 @@ export function createDemoDocuments() {
 
         Jan 14, 2026
         09:15 PM
-        Paid to Blinkit
+        Paid to Whole Foods Market
         Transaction ID : T2601142115007890123456
         UTR No : 678901234567
         Debited from XX2728
@@ -1815,7 +1815,7 @@ export function createDemoDocuments() {
 
         Jan 17, 2026
         09:16 PM
-        Paid to VODAFONE IDEA LIMITED
+        Paid to VERIZON WIRELESS
         Transaction ID : T2601172116337832483965
         UTR No : 628653786555
         Debited from XX2728
@@ -1833,7 +1833,7 @@ export function createDemoDocuments() {
 
         Jan 22, 2026
         08:30 PM
-        Paid to Swiggy
+        Paid to Chipotle
         Transaction ID : T2601222030000123456789
         UTR No : 601234567890
         Debited from XX2728
@@ -1860,7 +1860,7 @@ export function createDemoDocuments() {
 
         Dec 01, 2025
         10:30 AM
-        Received from TechCorp Systems Salary
+        Received from Northwind Systems Salary
         Transaction ID : T2512011030001234567890
         UTR No : 512345678901
         Credited to XX2728
@@ -1869,7 +1869,7 @@ export function createDemoDocuments() {
 
         Dec 05, 2025
         11:20 AM
-        Paid to Airtel Broadband Bill Payment
+        Paid to Comcast Broadband Bill Payment
         Transaction ID : T2512051120003456789012
         UTR No : 534567890123
         Debited from XX2728
@@ -1878,7 +1878,7 @@ export function createDemoDocuments() {
 
         Dec 10, 2025
         07:10 AM
-        Paid to Spotify India
+        Paid to Spotify
         Transaction ID : T2512100710005678901234
         UTR No : 556789012345
         Debited from XX2728
@@ -1905,7 +1905,7 @@ export function createDemoDocuments() {
 
         Dec 18, 2025
         06:15 PM
-        Paid to Flipkart
+        Paid to Walmart
         Transaction ID : T2512181815009012345678
         UTR No : 590123456789
         Debited from XX2728
@@ -1914,7 +1914,7 @@ export function createDemoDocuments() {
 
         Dec 20, 2025
         08:45 PM
-        Paid to Zomato
+        Paid to Dominos Pizza
         Transaction ID : T2512202045000123456789
         UTR No : 501234567890
         Debited from XX2728
@@ -1939,7 +1939,7 @@ export function createDemoDocuments() {
         09:20 AM
         Paid to Uber
         UPI Transaction ID: 630495733101
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹210.00
 
@@ -1947,15 +1947,15 @@ export function createDemoDocuments() {
         06:45 PM
         Paid to Starbucks
         UPI Transaction ID: 630895733102
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹380.00
 
         09 Jan, 2026
         04:29 PM
-        Received from Mo. Bilal
+        Received from Emma Johnson
         UPI Transaction ID: 637589339416
-        Paid to HDFC Bank 2728
+        Paid to Chase Bank 2728
         Credit
         ₹1200.00
 
@@ -1963,7 +1963,7 @@ export function createDemoDocuments() {
         07:15 PM
         Paid to Amazon
         UPI Transaction ID: 631195733103
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹1299.00
 
@@ -1971,47 +1971,47 @@ export function createDemoDocuments() {
         02:30 PM
         Received from Amazon Refund
         UPI Transaction ID: 631395733104
-        Paid to HDFC Bank 2728
+        Paid to Chase Bank 2728
         Credit
         ₹499.00
 
         15 Jan, 2026
         08:15 PM
-        Paid to Ola
+        Paid to Lyft
         UPI Transaction ID: 631595733105
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹260.00
 
         17 Jan, 2026
         08:46 PM
-        Paid to Mohd Ayan
+        Paid to Liam Chen
         UPI Transaction ID: 638395733138
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹500.00
 
         20 Jan, 2026
         11:45 AM
-        Paid to Blinkit
+        Paid to Whole Foods Market
         UPI Transaction ID: 632095733106
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹650.00
 
         23 Jan, 2026
         04:30 PM
-        Paid to Apollo Pharmacy
+        Paid to CVS Pharmacy
         UPI Transaction ID: 632395733107
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹420.00
 
         25 Jan, 2026
         01:10 PM
-        Paid to Zomato
+        Paid to Dominos Pizza
         UPI Transaction ID: 632595733108
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹410.00
 
@@ -2019,15 +2019,15 @@ export function createDemoDocuments() {
         07:40 PM
         Paid to Uber
         UPI Transaction ID: 632895733109
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹340.00
 
         08 Dec, 2025
         07:20 PM
-        Paid to Swiggy
+        Paid to Chipotle
         UPI Transaction ID: 530895733110
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹520.00
 
@@ -2035,23 +2035,23 @@ export function createDemoDocuments() {
         03:15 PM
         Paid to Amazon
         UPI Transaction ID: 531495733111
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹3450.00
 
         19 Dec, 2025
         08:30 PM
-        Paid to Mohd Ayan
+        Paid to Liam Chen
         UPI Transaction ID: 531995733112
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹500.00
 
         24 Dec, 2025
         06:00 PM
-        Received from Mo. Bilal
+        Received from Emma Johnson
         UPI Transaction ID: 532495733113
-        Paid to HDFC Bank 2728
+        Paid to Chase Bank 2728
         Credit
         ₹800.00
 
@@ -2059,7 +2059,7 @@ export function createDemoDocuments() {
         09:10 AM
         Paid to Uber
         UPI Transaction ID: 532895733114
-        Paid by ICICI Bank 1411
+        Paid by Barclays Bank 1411
         Debit
         ₹230.00
       `,

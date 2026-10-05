@@ -79,7 +79,7 @@ export function HomeView({ onUpload, loadDemo }: HomeViewProps) {
                 </div>
                 <div className="mockup-row">
                   <span className="mono mockup-date-col">17 Jan</span>
-                  <span className="mockup-merchant-col">Swiggy</span>
+                  <span className="mockup-merchant-col">Chipotle</span>
                   <span className="mockup-category-col">Food &amp; Dining</span>
                   <span className="text-right mono debit mockup-amount-col">−₹450</span>
                 </div>
@@ -97,13 +97,13 @@ export function HomeView({ onUpload, loadDemo }: HomeViewProps) {
                 </div>
                 <div className="mockup-row">
                   <span className="mono mockup-date-col">16 Jan</span>
-                  <span className="mockup-merchant-col">Blinkit</span>
+                  <span className="mockup-merchant-col">Whole Foods</span>
                   <span className="mockup-category-col">Food &amp; Dining</span>
                   <span className="text-right mono debit mockup-amount-col">−₹840</span>
                 </div>
                 <div className="mockup-row">
                   <span className="mono mockup-date-col">15 Jan</span>
-                  <span className="mockup-merchant-col">Zomato</span>
+                  <span className="mockup-merchant-col">Dominos Pizza</span>
                   <span className="mockup-category-col">Food &amp; Dining</span>
                   <span className="text-right mono debit mockup-amount-col">−₹320</span>
                 </div>
